@@ -8,33 +8,48 @@
 <p>Teleskop: VdS Remotesternwarte in Hakos</p>    
 </p>    
 <br>   
-<center><button type="button" class="btn btn-success" onclick="dupliziereAufnahmeBlock()">➕ <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right-circle-fill" viewBox="0 0 16 16">
-  <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0M4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5z"/>
-</svg> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bounding-box" viewBox="0 0 16 16">
-  <path d="M5 2V0H0v5h2v6H0v5h5v-2h6v2h5v-5h-2V5h2V0h-5v2zm6 1v2h2v6h-2v2H5v-2H3V5h2V3zm1-2h3v3h-3zm3 11v3h-3v-3zM4 15H1v-3h3zM1 4V1h3v3z"/>
-</svg></button>               
-        <button type="button" class="btn btn-danger btn-sm" onclick="loescheAufnahmeBlock(this)">− <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-circle-fill" viewBox="0 0 16 16">
-  <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0m3.5 7.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5z"/>
-</svg> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bounding-box" viewBox="0 0 16 16">
-  <path d="M5 2V0H0v5h2v6H0v5h5v-2h6v2h5v-5h-2V5h2V0h-5v2zm6 1v2h2v6h-2v2H5v-2H3V5h2V3zm1-2h3v3h-3zm3 11v3h-3v-3zM4 15H1v-3h3zM1 4V1h3v3z"/>
-</svg></button>
-    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="kopiereAufnahmeBlock(this)">⧉ <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bounding-box" viewBox="0 0 16 16">
-  <path d="M5 2V0H0v5h2v6H0v5h5v-2h6v2h5v-5h-2V5h2V0h-5v2zm6 1v2h2v6h-2v2H5v-2H3V5h2V3zm1-2h3v3h-3zm3 11v3h-3v-3zM4 15H1v-3h3zM1 4V1h3v3z"/>
-</svg></button>
-    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="moveBlockUp(this)"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up-circle-fill" viewBox="0 0 16 16">
-  <path d="M16 8A8 8 0 1 0 0 8a8 8 0 0 0 16 0m-7.5 3.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707z"/>
-</svg> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bounding-box" viewBox="0 0 16 16">
-  <path d="M5 2V0H0v5h2v6H0v5h5v-2h6v2h5v-5h-2V5h2V0h-5v2zm6 1v2h2v6h-2v2H5v-2H3V5h2V3zm1-2h3v3h-3zm3 11v3h-3v-3zM4 15H1v-3h3zM1 4V1h3v3z"/>
-</svg></button>
-    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="moveBlockDown(this)"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down-circle-fill" viewBox="0 0 16 16">
-  <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293z"/>
-</svg> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bounding-box" viewBox="0 0 16 16">
-  <path d="M5 2V0H0v5h2v6H0v5h5v-2h6v2h5v-5h-2V5h2V0h-5v2zm6 1v2h2v6h-2v2H5v-2H3V5h2V3zm1-2h3v3h-3zm3 11v3h-3v-3zM4 15H1v-3h3zM1 4V1h3v3z"/>
-</svg></button>    
-</center>
 <div id="aufnahme-container">
-    <div class="aufnahme-block">         
-<div class="border border-2 border-danger rounded p-3 my-3">       
+  <div class="aufnahme-block">   
+    <center>
+      <button type="button" class="btn btn-success" onclick="dupliziereAufnahmeBlock(this)">➕</button>
+      <button type="button" class="btn btn-danger btn-sm" onclick="loescheAufnahmeBlock(this)">−</button>
+      <button type="button" class="btn btn-outline-secondary btn-sm" onclick="kopiereAufnahmeBlock(this)">⧉</button>
+      <button type="button" class="btn btn-outline-secondary btn-sm" onclick="moveBlockUp(this)">↑</button>
+      <button type="button" class="btn btn-outline-secondary btn-sm" onclick="moveBlockDown(this)">↓</button>
+    </center>
+  
+<script>
+  function dupliziereAufnahmeBlock(btn) {
+    const block = btn.closest('.aufnahme-block');
+    const clone = block.cloneNode(true);
+    block.parentNode.insertBefore(clone, block.nextSibling);
+  }
+
+  function loescheAufnahmeBlock(btn) {
+    const block = btn.closest('.aufnahme-block');
+    block.remove();
+  }
+
+  function kopiereAufnahmeBlock(btn) {
+    const block = btn.closest('.aufnahme-block');
+    const clone = block.cloneNode(true);
+    document.getElementById('aufnahme-container').appendChild(clone);
+  }
+
+  function moveBlockUp(btn) {
+    const block = btn.closest('.aufnahme-block');
+    const prev = block.previousElementSibling;
+    if (prev) block.parentNode.insertBefore(block, prev);
+  }
+
+  function moveBlockDown(btn) {
+    const block = btn.closest('.aufnahme-block');
+    const next = block.nextElementSibling;
+    if (next) block.parentNode.insertBefore(next, block);
+  }
+</script>
+
+
 <table class="table text-center mb-0">    
     <tr>
         <td>
@@ -148,160 +163,14 @@
 </table>
 </div>
 </div>
-</div>
 </form>
-<center><button type="button" class="btn btn-success" onclick="dupliziereAufnahmeBlock()">➕ <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right-circle-fill" viewBox="0 0 16 16">
-  <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0M4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5z"/>
-</svg> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bounding-box" viewBox="0 0 16 16">
-  <path d="M5 2V0H0v5h2v6H0v5h5v-2h6v2h5v-5h-2V5h2V0h-5v2zm6 1v2h2v6h-2v2H5v-2H3V5h2V3zm1-2h3v3h-3zm3 11v3h-3v-3zM4 15H1v-3h3zM1 4V1h3v3z"/>
-</svg></button>               
-        <button type="button" class="btn btn-danger btn-sm" onclick="loescheAufnahmeBlock(this)">− <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-circle-fill" viewBox="0 0 16 16">
-  <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0m3.5 7.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5z"/>
-</svg> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bounding-box" viewBox="0 0 16 16">
-  <path d="M5 2V0H0v5h2v6H0v5h5v-2h6v2h5v-5h-2V5h2V0h-5v2zm6 1v2h2v6h-2v2H5v-2H3V5h2V3zm1-2h3v3h-3zm3 11v3h-3v-3zM4 15H1v-3h3zM1 4V1h3v3z"/>
-</svg></button>
-    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="kopiereAufnahmeBlock(this)">⧉ <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bounding-box" viewBox="0 0 16 16">
-  <path d="M5 2V0H0v5h2v6H0v5h5v-2h6v2h5v-5h-2V5h2V0h-5v2zm6 1v2h2v6h-2v2H5v-2H3V5h2V3zm1-2h3v3h-3zm3 11v3h-3v-3zM4 15H1v-3h3zM1 4V1h3v3z"/>
-</svg></button>
-    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="moveBlockUp(this)"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up-circle-fill" viewBox="0 0 16 16">
-  <path d="M16 8A8 8 0 1 0 0 8a8 8 0 0 0 16 0m-7.5 3.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707z"/>
-</svg> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bounding-box" viewBox="0 0 16 16">
-  <path d="M5 2V0H0v5h2v6H0v5h5v-2h6v2h5v-5h-2V5h2V0h-5v2zm6 1v2h2v6h-2v2H5v-2H3V5h2V3zm1-2h3v3h-3zm3 11v3h-3v-3zM4 15H1v-3h3zM1 4V1h3v3z"/>
-</svg></button>
-    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="moveBlockDown(this)"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down-circle-fill" viewBox="0 0 16 16">
-  <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293z"/>
-</svg> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bounding-box" viewBox="0 0 16 16">
-  <path d="M5 2V0H0v5h2v6H0v5h5v-2h6v2h5v-5h-2V5h2V0h-5v2zm6 1v2h2v6h-2v2H5v-2H3V5h2V3zm1-2h3v3h-3zm3 11v3h-3v-3zM4 15H1v-3h3zM1 4V1h3v3z"/>
-</svg></button>    
-</center>
+
 <hr>
     <div class="text-center">
 <button type="submit" class="btn btn-primary">Absenden</button>    
 <button type="button" onclick="resetCalendar()">Zurücksetzen</button>
 <button type="submit" class="btn btn-primary">Draft</button>
 </div>
-<!-- Zeilen einfügen -->
-<script>
-    function copyRow(button) {
-        const row = button.closest('tr');
-        const clone = row.cloneNode(true);
-    
-        // Lege alle Input-Felder im Clone neu an, damit keine Referenzen doppelt verwendet werden
-        clone.querySelectorAll('input, textarea').forEach(input => {
-            const newInput = input.cloneNode();
-            newInput.value = input.value;  // Optional: Werte mitkopieren
-            input.replaceWith(newInput);
-        });
-    
-        // Button (Funktion Kopieren/Löschen)
-        clone.querySelector('button.btn-danger').onclick = function() {
-            this.closest('tr').remove();
-        };
-        clone.querySelector('button.btn-secondary').onclick = function() {
-            copyRow(this);
-        };
-    
-        document.getElementById('aufnahmeTbody').appendChild(clone);
-    }
-    </script>
-    
-    <!-- Komplett einfügen -->
-    <script>
-        function dupliziereAufnahmeBlock() {
-            const container = document.getElementById('aufnahme-container');
-            const originalBlock = container.querySelector('.aufnahme-block');
-            const clone = originalBlock.cloneNode(true);
-        
-            // Leere alle Felder
-            clone.querySelectorAll('input, textarea, select').forEach(el => {
-                if (el.tagName === 'SELECT') {
-                    el.selectedIndex = 0;
-                } else {
-                    el.value = '';
-                }
-            });
-        
-            // Buttons neu verbinden (falls innerhalb kopierter Zeilen)
-            clone.querySelectorAll('button.btn-danger').forEach(btn => {
-                btn.onclick = function () {
-                    this.closest('tr').remove();
-                };
-            });
-            clone.querySelectorAll('button.btn-secondary').forEach(btn => {
-                btn.onclick = function () {
-                    copyRow(this);
-                };
-            });
-        
-            container.appendChild(clone);
-        }
-        </script>
-
-        <!-- Aufnahmeblock löschen-->
-
-        <script>
-function loescheAufnahmeBlock(button) {
-    const block = button.closest('.aufnahme-block');
-    block.remove();
-}
-</script>
-
-<!-- Aufnahmeblock kopieren -->
- <script>
-function kopiereAufnahmeBlock(button) {
-    const originalBlock = button.closest('.aufnahme-block');
-    const clone = originalBlock.cloneNode(true);
-
-    // Buttons im geklonten Block neu verbinden
-    clone.querySelectorAll('button.btn-outline-danger').forEach(btn => {
-        btn.onclick = function () {
-            loescheAufnahmeBlock(this);
-        };
-    });
-
-    clone.querySelectorAll('button.btn-outline-secondary').forEach(btn => {
-        btn.onclick = function () {
-            kopiereAufnahmeBlock(this);
-        };
-    });
-
-    // Bei Bedarf auch inneren Zeilen-Kopier/Lösch-Buttons neu verbinden:
-    clone.querySelectorAll('button.btn-danger').forEach(btn => {
-        btn.onclick = function () {
-            this.closest('tr').remove();
-        };
-    });
-    clone.querySelectorAll('button.btn-secondary').forEach(btn => {
-        btn.onclick = function () {
-            copyRow(this);
-        };
-    });
-
-    // Und schließlich anhängen
-    document.getElementById('aufnahme-container').appendChild(clone);
-}
-</script>
-
-<!-- Verschiebemenü-->
-
-<script>
-function moveBlockUp(button) {
-    const block = button.closest('.aufnahme-block');
-    const prev = block.previousElementSibling;
-    if (prev && prev.classList.contains('aufnahme-block')) {
-        block.parentNode.insertBefore(block, prev);
-    }
-}
-
-function moveBlockDown(button) {
-    const block = button.closest('.aufnahme-block');
-    const next = block.nextElementSibling;
-    if (next && next.classList.contains('aufnahme-block')) {
-        block.parentNode.insertBefore(next, block);
-    }
-}
-</script>
-
         
 {% endif %}
 {% endblock %}
