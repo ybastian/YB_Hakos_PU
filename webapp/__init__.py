@@ -5,6 +5,7 @@ from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
+import jinja_partials
 
 from webapp.config import Config
 from webapp.admin.utils import init_admin
@@ -29,7 +30,7 @@ def create_app(config_class=Config):
         SESSION_COOKIE_HTTPONLY=True,
         SESSION_COOKIE_SAMESITE='Lax',
     )
-
+    app.jinja_env.add_extension('jinja_partials.PartialsJinjaExtension') # make render_partial available inside templates
     db.init_app(app)
     Migrate(app, db)
     bcrypt.init_app(app)
