@@ -56,11 +56,13 @@ def create_app(config_class=Config):
         from webapp.main.routes import main
         from webapp.orders.routes import orders
         from webapp.errors.handlers import errors
+        from webapp.inout.routes import bp as inout_bp
         app.register_blueprint(users)
         app.register_blueprint(posts)
         app.register_blueprint(main)
         app.register_blueprint(errors)
         app.register_blueprint(orders)
+        app.register_blueprint(inout_bp)
         setup_users()
 
     return app

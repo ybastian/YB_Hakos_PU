@@ -21,4 +21,4 @@ selenium==4.33.0
 sqlalchemy_schemadisplay==2.0
 tzlocal==5.3.1
 waitress==3.0.2
-
+psycopg==3.2.9

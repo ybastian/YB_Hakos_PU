@@ -5,6 +5,42 @@
         The admin area is for admin's only!
         <br>
         Back to <a href="/"> vds-sternwarte </a>
+        <br/><br/>
+        <div class="card">
+            <h5 class="card-header">Import/Export Tool</h5>
+            <div class="card-body">
+            <h5 class="card-title"> Bitte beachten </h5>
+            <p class="card-text">
+            Gelegentlich kann es nötig sein, die Daten in ein anderes Datenbanksystem zu migrieren.
+            Die Exportfunktion auf dieser Seite exportiert alle in der Datenbank enthaltenen Daten in eine Datei.
+            Mit der Importfunktion kann diese Datei wieder importiert werden. Dabei werden keine existierenden Daten überschrieben.
+            <p>
+            <strong>Diese Funktionen ersetzen kein Backup der Datenbank</strong>.
+            <p> Bitte stelle sicher, dass die Daten vollständig importiert werden
+            und die Applikationsversion zwischen Export und Import nicht verändert wird.
+
+            <div class="row">
+                <div class="col-md-6">
+                    <h2>Export</h2>
+                    <p>Exportiere Datenbank in JSON Datei.</p>
+                    <form action="{{ url_for('inout.export_data') }}" method="post">
+                        <button type="submit" class="btn btn-primary">Export</button>
+                    </form>
+                </div>
+                <div class="col-md-6">
+                    <h2>Import</h2>
+                    <p>Importiere Datenbank aus JSON Datei.</p>
+                    <form action="{{ url_for('inout.import_data') }}" method="post" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="file">Datei</label>
+                            <input type="file" class="form-control-file" id="file" name="file">
+                        </div>
+                        <button type="submit" class="btn btn-danger">Import</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
     </div>
 
 {% endblock body %}

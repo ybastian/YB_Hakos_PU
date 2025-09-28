@@ -17,15 +17,6 @@ def home():
     posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
     return render_template('home.html', posts=posts)
 
-
-@main.route("/about")
-@login_required
-def about():
-    software_id = "$Id$"
-    version = "0.1-rc"
-    return render_template('about.html', title='About', version=version, commitId=software_id)
-
-
 # -------------------------------------------------------------
 #
 # -------------------------------------------------------------
@@ -90,9 +81,7 @@ def servicerequest():
 @main.route("/request_georg")
 @login_required
 def request_georg():
-    software_id = "$Id$"
-    version = "0.1-rc"
-    return render_template('create_request_georg.html', title='Request Georg', version=version, commitId=software_id)
+    return render_template('create_request_georg.html', title='Request Georg')
 
 @main.route("/add-row")
 def add_row():

@@ -1,10 +1,26 @@
-
 import os
 import secrets
 from PIL import Image
-from flask import url_for, current_app
+from flask import url_for, current_app, flash, redirect
 from flask_mail import Message
 from webapp import mail
+from functools import wraps
+from flask_login import current_user
+
+
+def role_required(role_name):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if not current_user.is_authenticated:
+                flash('Please log in to access this page.', 'info')
+                return redirect(url_for('users.login'))
+            if not current_user.has_role(role_name):
+                flash('You do not have permission to access this page.', 'danger')
+                return redirect(url_for('main.home'))
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
 
 
 def save_picture(form_picture):
