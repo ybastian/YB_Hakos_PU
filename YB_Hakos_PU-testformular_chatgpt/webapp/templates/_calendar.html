@@ -1,0 +1,117 @@
+
+<div id="calendar-container">
+<p>
+<span style="margin-right:50px;">
+    Belegung für {{ month }}.{{ year }}
+    <span style="color: #007bff;">geplant:</span>
+    {% if planned_days %}
+        <span style="color: #007bff;">{{ planned_days|list|sort|join(', ') }}</span>
+    {% else %}
+        <span style="color: #007bff;">keine</span>
+    {% endif %}
+    &nbsp;
+    <span style="color: #a00a02;">reserviert:</span>
+    {% if approved_days %}
+        <span style="color: #a00a02;">{{ approved_days|list|sort|join(', ') }}</span>
+    {% else %}
+        <span style="color: #a00a02;">keine</span>
+    {% endif %}
+    &nbsp;
+    <span style="color: #343a40;">🌑 Neumond:</span>
+    {% if new_moon_days %}
+        <span style="color: #343a40;">{{ new_moon_days|list|sort|join(', ') }}</span>
+    {% else %}
+        <span style="color: #343a40;">keiner</span>
+    {% endif %}
+    &nbsp;
+    <span style="color: #ffe066;">🌕 Vollmond:</span>
+    {% if full_moon_days %}
+        <span style="color: #ffe066;">{{ full_moon_days|list|sort|join(', ') }}</span>
+    {% else %}
+        <span style="color: #ffe066;">keiner</span>
+    {% endif %}
+</span>
+</p>
+
+<table class="calendar-table">
+  <tr>
+    <th>Mo</th><th>Di</th><th>Mi</th><th>Do</th><th>Fr</th><th>Sa</th><th>So</th>
+  </tr>
+  {% for week in cal %}
+    <tr>
+      {% for day in week %}
+      {% if day == 0 %}
+    <td></td>
+      {% else %}
+       {#
+        Prüfen, ob Tag <= heute im aktuellen Monat und Jahr #}
+        {% set is_past = (year < today_year) or
+                         (year == today_year and month < today_month) or
+                         (year == today_year and month == today_month and day <= today_day) %}
+        <td
+          {% if picker and not is_past and day not in approved_days and day not in planned_days %}
+              data-day="{{ day }}" data-month="{{ month }}" data-year="{{ year }}"
+              onclick="selectDate(this, '{{ target_id }}', '{{ display_id }}')"
+              style="cursor: pointer; background-color: #02a007; color: white;"
+          {% else %}
+              style="
+                {% if is_past %}
+                  background-color: #d3d3d3; color: #666;
+                {% else %}
+                  {% if day in approved_days %} background-color: #a00a02; color: white;
+                  {% elif day in planned_days %}  background-color: #c2b280; color: black;
+                  {% elif day in full_moon_days %} background-color: #ffe066; color: #333; font-weight: bold;
+                  {% elif day in new_moon_days %} background-color: #343a40; color: #fff; font-weight: bold;
+                  {% else %} background-color: #02a007; color: white;
+                  {% endif %}
+                {% endif %}
+              "
+          {% endif %}
+        >
+          {{ day }}
+          {% if day in full_moon_days %}🌕{% endif %}
+          {% if day in new_moon_days %}🌑{% endif %}
+          {% if day in approved_days %}<span title="reserviert"></span>{% endif %}
+          {% if day in planned_days %}<span title="geplant"></span>{% endif %}
+        </td>
+        {% endif %}
+      {% endfor %}
+    </tr>
+  {% endfor %}
+</table>
+
+<div class="mt-3">
+    <a class="btn btn-primary" hx-get="{{ url_for('orders.show_calendar', year=year-1, month=month, picker=picker) }}" hx-target="#calendar-container-modal .modal-body" hx-swap="innerHTML">«« Vorheriger Jahr</a>
+    <a class="btn btn-primary" hx-get="{{ url_for('orders.show_calendar', year=year if month > 1 else year-1, month=month-1 if month > 1 else 12, picker=picker) }}" hx-target="#calendar-container-modal .modal-body" hx-swap="innerHTML">« Vorheriger Monat</a>
+    <a class="btn btn-primary" hx-get="{{ url_for('orders.show_calendar', year=datetime.today().year, month=datetime.today().month, picker=picker) }}" hx-target="#calendar-container-modal .modal-body" hx-swap="innerHTML">Jetzt</a>
+    <a class="btn btn-primary" hx-get="{{ url_for('orders.show_calendar', year=year if month < 12 else year+1, month=month+1 if month < 12 else 1, picker=picker) }}" hx-target="#calendar-container-modal .modal-body" hx-swap="innerHTML">Nächster Monat »</a>
+    <a class="btn btn-primary" hx-get="{{ url_for('orders.show_calendar', year=year+1, month=month, picker=picker) }}" hx-target="#calendar-container-modal .modal-body" hx-swap="innerHTML">Nächstes Jahr »»</a>
+
+    {% if referrer and not picker %}
+        <a href="{{ referrer }}" class="btn btn-secondary">Zurück</a>
+    {% elif not picker %}
+        <button type="button" class="btn btn-secondary" onclick="history.back();">Zurück</button>
+    {% endif %}
+</div>
+</div>
+{% if picker %}
+<script>
+  function selectDate(cell, targetId, displayId) {
+    var day = cell.getAttribute('data-day');
+    var month = cell.getAttribute('data-month');
+    var year = cell.getAttribute('data-year');
+
+    // Format date as YYYY-MM-DD
+    var formattedDate = year + '-' + String(month).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+
+    // Update the hidden input and the display span
+    document.getElementById(targetId).value = formattedDate;
+    document.getElementById(displayId).innerText = formattedDate;
+
+    // Close the modal
+    var modal = bootstrap.Modal.getInstance(document.getElementById('calendar-container-modal'));
+    modal.hide();
+  }
+</script>
+{% endif %}
+

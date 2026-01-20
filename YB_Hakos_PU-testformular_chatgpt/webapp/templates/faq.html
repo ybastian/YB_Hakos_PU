@@ -1,0 +1,55 @@
+{% extends "layout_no_sidebar.html" %}
+{% block content %}
+    <h1>FAQ</h1>
+<ul>
+	<li>- Wer bin ich?
+	<ul>
+	  {% if current_user.is_authenticated %}
+       Du bist: {{current_user.firstname}} {{current_user.surname}} Username: {{current_user.name}}!
+    {% else %}
+       Keine Ahnung! Bitte melde dich an.
+    {% endif %}
+	</ul>
+	</li>
+	
+	<li>- Was bin ich?
+	<ul>
+    {% if current_user.is_authenticated %}
+	  User oder Poweruser 
+    {% else %}
+       Keine Ahnung! Bitte melden Sie sich an.
+    {% endif %}
+	</ul>
+    </li>	
+
+    {% if current_user.is_authenticated %}
+	
+	<li>- Was will ich aufnehmen<br>
+	<ul>
+ 	</ul>
+	</li>
+	<li>- Wer hilft mir
+	<ul>
+ 	</ul>
+	</li>
+
+	<li>- Wo finde ich die aufgemommenen Bilder
+	<ul>
+	  Kuckst du hier:
+		<a href="{{ vds_link }}" target="_blank" rel="noopener noreferrer">Nextcloud VdS Archiv</a>
+
+ 	</ul>
+	</li>
+	
+	<li>- Wie oft habe ich schon Beobachtungen gemacht
+	<ul>
+ 	</ul>
+	</li>
+
+	<li>- Wie viele sind wegen schlechtem Wetter ausgefallen
+	<ul>
+ 	</ul>
+    {% endif %}
+	</li>
+</ul>	
+{% endblock content %}

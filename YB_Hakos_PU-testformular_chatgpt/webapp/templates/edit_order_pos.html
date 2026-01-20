@@ -1,0 +1,695 @@
+<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+{% extends "layout_no_sidebar.html" %}
+{% block content %}
+
+<script>
+
+
+function toggleExpertFields() {
+
+    const expertSwitch = document.getElementById('expert_switch');
+    const button_coordinates = document.getElementById('coord-btn');
+    const expertFields = document.querySelectorAll('.expert-field');
+    expertFields.forEach(field => {
+        if (expertSwitch.checked) {
+            field.classList.add('visible');
+        } else {
+            field.classList.remove('visible');
+        }
+    });
+        if (expertSwitch.checked) {
+            button_coordinates.classList.add('visible');
+        } else {
+            button_coordinates.classList.remove('visible');
+        }
+}
+
+
+function renumberRows() {
+    document.querySelectorAll('#positions-list tr').forEach((row, idx) => {
+        row.querySelectorAll('input, select, textarea, label').forEach(el => {
+            if (el.name) {
+                el.name = el.name.replace(/positions-\d+-/, `positions-${idx}-`);
+            }
+            if (el.id) {
+                el.id = el.id.replace(/positions-\d+-/, `positions-${idx}-`);
+            }
+            if (el.htmlFor) {
+                el.htmlFor = el.htmlFor.replace(/positions-\d+-/, `positions-${idx}-`);
+            }
+        });
+    });
+}
+
+function deleteRow(btn) {
+    if (confirm('Wirklich löschen?')) {
+        btn.closest('tr').remove();
+        renumberRows();
+    }
+}
+
+function updateMoveButtons() {
+    const rows = document.querySelectorAll('tbody tr');
+    rows.forEach((row, idx) => {
+        const btnUp = row.querySelector('.btn-up');
+        const btnDown = row.querySelector('.btn-down');
+        if (!btnUp || !btnDown) {
+            console.warn('Fehlender Button in Zeile:', idx, row);
+        }
+        if (btnUp) btnUp.disabled = idx === 0;
+        if (btnDown) btnDown.disabled = idx === rows.length - 1;
+    });
+}
+
+function moveUp(btn) {
+    const row = btn.closest('tr');
+    const prev = row.previousElementSibling;
+    const tbody = row.parentNode;
+    if (prev && prev.nodeName === "TR") {
+        tbody.insertBefore(row, prev);
+        renumberRows();
+        updateMoveButtons();
+    }
+}
+
+function moveDown(btn) {
+    const row = btn.closest('tr');
+    const next = row.nextElementSibling;
+    if (next && next.nodeName === "TR") {
+        row.parentNode.insertBefore(next, row);
+        renumberRows();
+        updateMoveButtons();
+    }
+}
+
+function registerTelescopeBoxListeners(context = document) {
+    const selects = context.querySelectorAll('.telescope_box');
+    selects.forEach(function(select) {
+        // Vorherigen Listener entfernen (nur wenn vorhanden)
+        if (select._telescopeChangeListener) {
+            select.removeEventListener('change', select._telescopeChangeListener);
+        }
+
+        // Listener-Funktion definieren
+        const listener = function() {
+            // Finde die aktuelle Zeile
+            const tr = this.closest('tr');
+            // Finde die Filterset-Box in derselben Zeile
+            const filtersetSelect = tr.querySelector('.filterset_box');
+
+            if (!filtersetSelect) {
+                console.warn("Keine Filterset-Box in dieser Zeile gefunden!");
+                return;
+            }
+
+            const telescopeId = this.value;
+            fetch('/orders/get_filtersets', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ telescope_id: telescopeId })
+            })
+            .then(response => response.json())
+            .then(options => {
+                filtersetSelect.innerHTML = '';
+                options.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = opt.id;
+                    option.textContent = opt.name;
+                    filtersetSelect.appendChild(option);
+                });
+            });
+        };
+
+        // Listener merken, um ihn ggf. wieder entfernen zu können
+        select._telescopeChangeListener = listener;
+        select.addEventListener('change', listener);
+    });
+}
+
+function copyRow(btn) {
+    const row = btn.closest('tr');
+    const clone = row.cloneNode(true);
+
+    // Alle Eingaben pruefen
+    const origInputs = row.querySelectorAll('input, select, textarea');
+    const cloneInputs = clone.querySelectorAll('input, select, textarea');
+
+    origInputs.forEach((input, idx) => {
+        const cloneInput = cloneInputs[idx];
+        if (!cloneInput) return;
+
+        if (input.type === "checkbox" || input.type === "radio") {
+            cloneInput.checked = input.checked;
+        } else if (input.tagName.toLowerCase() === "select") {
+            cloneInput.selectedIndex = input.selectedIndex;
+        } else {
+            cloneInput.value = input.value;
+        }
+    });
+
+    // Sichtbarkeitsstatus der expert-field Felder übernehmen
+    const origExpertFields = row.querySelectorAll('.expert-field');
+    const cloneExpertFields = clone.querySelectorAll('.expert-field');
+
+    origExpertFields.forEach((origField, idx) => {
+        const cloneField = cloneExpertFields[idx];
+        if (!cloneField) return;
+
+        // Sichtbarkeitsbereich aktualisieren
+        if (origField.classList.contains('visible')) {
+            cloneField.classList.add('visible');
+        } else {
+            cloneField.classList.remove('visible');
+        }
+    });
+    // kopierte Zeile nach der aktuellen einfügen
+    row.parentNode.insertBefore(clone, row.nextSibling);
+    renumberRows();
+    updateMoveButtons();
+    toggleExpertFields();
+}
+</script>
+
+<!-- Modal -->
+<div class="modal fade" id="checkPopup" tabindex="-1" aria-labelledby="checkPopupLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="checkPopupLabel">Prüfergebnis</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+      </div>
+      <div class="modal-body">
+        Alles OK
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .form-check-input.expert-big {
+    width: 1.5em;
+    height: 1.5em;
+  }
+
+  .expert-field {
+    display: none;
+  }
+
+  .expert-field.visible {
+    display: table-cell; /* oder block, je nach Element */
+  }
+
+  #coord-btn {
+    display: none;
+  }
+
+  #coord-btn.visible {
+    display: inline-block; /* oder passend */
+  }    
+  :root{
+      --primary:#0d6efd;
+    }    
+    .border-transparent{ border-color:transparent !important; }
+    .position-block.active {
+      border-color: var(--primary) !important;
+      box-shadow: 0 8px 24px rgba(13,110,253,.18) !important;
+    }
+    .position-badge {
+      right:.75rem; top:.75rem;
+    }
+  </style>
+<h2>Teleskopzeit Zeilen bearbeiten</h2>
+<form method="post" action="">
+{{ form.hidden_tag() }}
+{% if current_user.is_authenticated %}
+<div style="display: flex; justify-content: space-between; align-items: center;">
+    <span>
+        Antragssteller: {{ current_user.firstname }} {{ current_user.surname }} ({{ current_user.name }})
+        Status: {{ form.head.status_label.data }}
+    </span>
+<!-- Beginn Expertenmodus => zukuenftig erweiterter Modus: vorlaufig deaktiviert-->
+
+<!-- <div class="form-check p-2 bg-warning rounded d-flex align-items-center ms-3">
+        <input class="form-check-input expert-big me-2" type="checkbox" id="expert_switch"
+               {% if expert_mode in [True, "True", "true", 1, "1"] %} checked {% endif %} >
+        <label class="form-check-label fw-bold" for="expert_switch">
+            erweiterter Modus
+        </label>
+    </div> !-->
+<!-- Ende Expertenmodus: vorlaufig deaktiviert-->
+</div>
+<table class="table table-bordered table-striped table-hover">
+    <thead>
+        <tr>
+            <th class="col-fixed-100, text-center">Datum</th>
+            <th class="col-fixed-100, text-center">Beteiligte</th>
+            <th class="col-fixed-100, text-center">Observatorium</th>
+            </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="text-center">
+                {{ form.head.request_date(class="form-control", type="hidden") }}
+                <span id="selected_date_display">
+                    {{ form.head.request_date.data.strftime('%Y-%m-%d') if form.head.request_date.data else 'Kein Datum ausgewählt' }}
+                </span>
+                <button type="button" class="btn btn-sm btn-outline-secondary"
+                        hx-get="{{ url_for('orders.show_calendar', picker=True, target_id=form.head.request_date.id, display_id='selected_date_display') }}"
+                        hx-target="#calendar-container-modal .modal-body"
+                        hx-swap="innerHTML"
+                        data-bs-toggle="modal" data-bs-target="#calendar-container-modal">
+                    Kalender
+                </button>
+            </td>
+            <td class="text-center">{{ form.head.requester_name() }}</td>
+            <td class="text-center">{{ form.head.observatory_name() }}</td>
+    </tbody>
+</table>
+<table class="table table-bordered table-striped table-hover">
+    <thead>
+        <tr>      
+            <th class="text-center">Wunsch Poweruser</th>
+            <th class="text-center">Type</th>
+            <th class="text-center">Anmerkungen</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>            
+            <td class="text-center">{{ form.head.poweruser_name() }}</td>
+            <td class="text-center">{{ form.head.request_type() }}</td>
+            <td class="text-center">{{ form.head.remark() }}</td>
+        </tr>
+
+    </tbody>
+</table>
+
+<hr style="border: 2px solid red; margin-top: 10px; margin-bottom: 20px;">
+
+<!-- Anfang Kompletter Datensatz bearbeiten !-->
+
+<script>
+/* Block-Auswahl */
+function getActiveBlock() {
+  return document.querySelector('#positions-root .position-block.active')
+      || document.querySelector('#positions-root .position-block');
+}
+function setActive(block){
+  document.querySelectorAll('#positions-root .position-block').forEach(b=>{
+    b.classList.remove('active','border-primary','shadow');
+    b.classList.add('border-transparent');
+    b.setAttribute('aria-selected','false');
+    const badge = b.querySelector('.active-badge');
+    if (badge) badge.classList.add('d-none');
+  });
+  if(block){
+    block.classList.add('active','border-primary','shadow');
+    block.classList.remove('border-transparent');
+    block.setAttribute('aria-selected','true');
+    const badge = block.querySelector('.active-badge');
+    if (badge) badge.classList.remove('d-none');
+    block.focus();
+  }
+}
+function findBlockFromBtn(btn) {
+  const block = btn.closest('.position-block');
+  if (block) setActive(block);
+  return block || getActiveBlock();
+}
+function renumberAll() {
+  document.querySelectorAll('#positions-root .position-block').forEach((block, idx) => {
+    block.dataset.index = idx;
+    block.querySelectorAll('input, select, textarea, label').forEach(el => {
+      if (el.name)    el.name    = el.name.replace(/positions-\d+-/, `positions-${idx}-`);
+      if (el.id)      el.id      = el.id.replace(/positions-\d+-/, `positions-${idx}-`);
+      if (el.htmlFor) el.htmlFor = el.htmlFor.replace(/positions-\d+-/, `positions-${idx}-`);
+      if (el.dataset && typeof el.dataset.row !== 'undefined') el.dataset.row = String(idx);
+    });
+  });
+}
+function deepCloneBlock(block) {
+  const clone = block.cloneNode(true);
+  const src = block.querySelectorAll('input, textarea, select');
+  const dst = clone.querySelectorAll('input, textarea, select');
+  src.forEach((s, i) => {
+    const d = dst[i]; if (!d) return;
+    if (s.type === 'checkbox' || s.type === 'radio') d.checked = s.checked;
+    else if (s.tagName === 'SELECT') d.selectedIndex = s.selectedIndex;
+    else d.value = s.value;
+  });
+  return clone;
+}
+function kopiereAufnahmeBlock(btn) {
+  const block = findBlockFromBtn(btn); if (!block) return;
+  const clone = deepCloneBlock(block);
+  block.after(clone);
+  setActive(clone);
+  registerTelescopeBoxListeners(clone);
+  renumberAll();
+}
+function loescheAufnahmeBlock(btn) {
+  const block = findBlockFromBtn(btn); if (!block) return;
+  if (!confirm('Wirklich löschen?')) return;
+  const next = block.nextElementSibling || block.previousElementSibling;
+  block.remove();
+  if (next && next.classList.contains('position-block')) setActive(next);
+  renumberAll();
+}
+function moveBlockUp(btn) {
+  const block = findBlockFromBtn(btn); if (!block) return;
+  const prev = block.previousElementSibling;
+  if (prev && prev.classList.contains('position-block')) {
+    block.parentNode.insertBefore(block, prev);
+    setActive(block);
+    renumberAll();
+  }
+}
+function moveBlockDown(btn) {
+  const block = findBlockFromBtn(btn); if (!block) return;
+  const next = block.nextElementSibling;
+  if (next && next.classList.contains('position-block')) {
+    block.parentNode.insertBefore(next, block);
+    setActive(block);
+    renumberAll();
+  }
+}
+</script>
+
+ <div class="d-flex justify-content-center gap-2 flex-wrap mb-2">
+      <button class="btn btn-light" id="move-up"   type="button" title="Aktiven Block nach oben">
+        <i class="bi bi-arrow-up"></i>
+      </button>
+      <button class="btn btn-light" id="move-down" type="button" title="Aktiven Block nach unten">
+        <i class="bi bi-arrow-down"></i>
+      </button>
+      <div class="vr mx-1"></div>
+      <button class="btn btn-secondary" id="copy-active" type="button" title="Aktiven Block kopieren">
+        <i class="bi bi-files"></i>
+      </button>
+      <button class="btn btn-primary" id="add-new" type="button" title="Leeren Block hinzufügen">
+        <i class="bi bi-plus"></i>
+      </button>
+      <button class="btn btn-danger" id="delete-active" type="button" title="Aktiven Block löschen">
+        <i class="bi bi-trash"></i>
+      </button>
+    </div>
+
+<div class="container py-4">
+  <div id="positions-root">
+    {% for subform in form.positions %}
+    <div class="position-block position-relative border border-transparent rounded-3 p-3 mb-3"
+         data-index="{{ loop.index0 }}" tabindex="0" aria-selected="false">
+
+      <!-- Badge (nur bei aktiv sichtbar) -->
+      <span class="active-badge badge bg-primary position-absolute top-0 end-0 me-2 mt-2 d-none">
+        Aktiver Block
+      </span>
+
+      <!-- obere Tabelle  -->
+      <table class="table table-bordered table-striped table-hover mb-1">
+        <thead>
+          <tr>
+            <th class="text-center">Teleskop</th>            
+            <th class="text-center">Objekt oder Koordinaten</th>            
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-center">{{ subform.telescope(size=1, class_='telescope_box', data_row=loop.index0) }}</td>            
+<td class="text-center">
+            <!-- Beginn Java zur Aktivierung des Koordinatenmenues-->        
+
+            <script>
+document.addEventListener('DOMContentLoaded', function () {
+  const toggle = document.getElementById('coord-toggle');
+  const coords = document.getElementById('coord-fields');
+
+  toggle.addEventListener('change', function () {
+    coords.classList.toggle('d-none', !this.checked);
+  });
+});
+</script>
+
+            <!-- Ende Java zur Aktivierung des Koordinatenmenues--> 
+  
+    <div class="d-flex align-items-center gap-3 flex-nowrap  justify-content-center ">
+
+    <!-- Objekteingabe -->
+    {{ subform.target(placeholder="Objekt") }}
+
+    <!-- Aktivierungskasten -->
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" id="coord-toggle">
+      <label class="form-check-label" for="coord-toggle">
+        Koordinaten eingeben
+      </label>
+    </div>
+
+  </div>
+
+  <!-- Koordinatenbereich: zuerst versteckt -->
+  <div id="coord-fields" class="mt-2 d-none d-flex flex-wrap align-items-center gap-3">
+
+    <!-- Rektaszension -->
+    <label class="mb-1">Rektaszension (RA):</label>    
+      <input type="number" name="ra_h" class="form-control form-control-sm" placeholder="h" min="0" max="23" style="width: 40px;">
+      <input type="number" name="ra_m" class="form-control form-control-sm" placeholder="m" min="0" max="59" style="width: 40px;">
+      <input type="number" name="ra_s" class="form-control form-control-sm" placeholder="s" step="0.01" min="0" max="59.999" style="width: 70px;">
+  
+ 
+    <!-- Deklination -->
+    <label class="mb-1">Deklination (Dec):</label>    
+      <select name="dec_sign" class="form-control form-control-sm" style="width: 50px;">
+        <option value="+">+</option>
+        <option value="-">−</option>
+      </select>
+
+      <input type="number" name="dec_d" class="form-control form-control-sm" placeholder="°" min="0" max="90" style="width: 40px;">
+      <input type="number" name="dec_m" class="form-control form-control-sm" placeholder="′" min="0" max="59" style="width: 40px;">
+      <input type="number" name="dec_s" class="form-control form-control-sm" placeholder="″" step="0.01" min="0" max="59.999" style="width: 70px;">
+    </div>
+  
+ 
+
+</td>
+
+            
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Aufnahmedetails -->
+      <table class="table table-bordered table-striped table-hover mb-0">
+        <thead>
+          <tr>
+            <th class="text-center">Aktionen</th>
+            <th class="text-center">
+              Filterset
+              <span data-bs-toggle="tooltip" data-bs-placement="top"
+                    title="Die Auswahl von einzelnen oder einer Gruppe Filter.">
+                <i class="bi bi-question-circle text-info"></i>
+              </span>
+            </th>
+            <th class="expert-field">Koordinaten RA DEC</th>
+            <th class="expert-field">Sperre</th>
+            <th class="text-center">Anzahl Bilder</th>
+            <th class="text-center">Bel. Zeit</th>
+            <th class="text-center">Mosaik</th>
+            <th class="expert-field">Startzeit</th>
+            <th class="expert-field">Gain</th>
+            <th class="expert-field">Offset</th>
+            <th class="expert-field">Dither</th>
+            <th class="expert-field">Focus</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-center">
+              <div class="btn-group" role="group">
+                <button type="button" class="btn btn-sm btn-light" onclick="moveUp(this)"   title="Zeile nach oben"><i class="bi bi-arrow-up"></i></button>
+                <button type="button" class="btn btn-sm btn-light" onclick="moveDown(this)" title="Zeile nach unten"><i class="bi bi-arrow-down"></i></button>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="copyRow(this)"  title="Zeile kopieren"><i class="bi bi-files"></i></button>
+                <button type="button" class="btn btn-sm btn-danger"    onclick="deleteRow(this)" title="Zeile löschen"><i class="bi bi-trash"></i></button>
+              </div>
+            </td>
+            <td class="text-center">{{ subform.filterset(size=1, class_='filterset_box', data_row=loop.index0) }}</td>
+            <td class="expert-field">{{ subform.target_coordinates }}</td>
+            <td class="expert-field">{{ subform.target_coordinates_lock(size=1) }}</td>
+            <td class="text-center">{{ subform.exposure_count(size=2) }}</td>
+            <td class="text-center">{{ subform.exposure_time(size=2) }}</td>
+            <td class="d-flex justify-content-center align-items-center">
+              <div class="form-check"><input class="form-check-input" type="checkbox" id="coord-toggle"></div>
+            </td>
+            <td class="expert-field">{{ subform.exposure_starttime(size=1, placeholder="HH:MM") }}</td>
+            <td class="expert-field">{{ subform.exposure_gain(size=1) }}</td>
+            <td class="expert-field">{{ subform.exposure_offset(size=1) }}</td>
+            <td class="expert-field">{{ subform.exposure_dither(size=1) }}</td>
+            <td class="expert-field">{{ subform.exposure_focus(size=1) }}</td>            
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Ende Kompletter Datensatz bearbeiten !-->
+
+
+<button type="submit" class="btn" name="action" value="save_order" style="background-color: green; color: white;">
+  Speichern
+</button>
+
+<button type="submit" class="btn" name="action" value="submit_order" style="background-color: purple; color: white;"
+        onclick="return confirm('Willst du wirklich den Antrag abschicken?');">
+  Beantragung abschicken
+</button>
+
+<button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#checkPopup">
+  Überprüfen
+</button>
+
+<button id="coord-btn" type="submit" class="btn" name="action" value="resolve_coordinates" style="background-color: #f00000; color: white;">
+  Objekt Koordinaten ergänzen
+</button>
+
+<a class="btn btn-primary" href="{{ url_for('main.home') }}">Zur Startseite</a>
+
+{% endif %}
+</form>
+
+<script>
+window.addEventListener('DOMContentLoaded', function() {
+  // Expertenmodus initial & Listener (robust)
+  toggleExpertFields();
+  const expertSwitch = document.getElementById('expert_switch');
+  if (expertSwitch) {
+    expertSwitch.addEventListener('change', function() {
+      toggleExpertFields();
+      fetch('/orders/user_preference', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({key: 'expert_mode', value: this.checked ? "True" : "False"})
+      });
+    });
+  }
+
+  // Listener initialisieren
+  registerTelescopeBoxListeners();
+
+  // Aktiven Block setzen & per Klick/Fokus umschalten
+  setActive(getActiveBlock());
+  const root = document.getElementById('positions-root');
+  if (root) {
+    root.addEventListener('click', (e)=>{
+      const b = e.target.closest('.position-block');
+      if (b) setActive(b);
+    });
+    root.addEventListener('focusin', (e)=>{
+      const b = e.target.closest('.position-block');
+      if (b) setActive(b);
+    });
+  }
+
+  // IDs/Namen konsistent
+  renumberAll();
+});
+</script>
+
+<!-- ===== Block-Aktivierung ===== -->
+ <script>
+const root = document.getElementById('positions-root');
+
+function setActive(block){
+  root.querySelectorAll('.position-block').forEach(b=>{
+    b.classList.remove('active');
+    b.setAttribute('aria-selected','false');
+    const badge = b.querySelector('.position-badge'); if (badge) badge.classList.add('d-none');
+  });
+  if(block){
+    block.classList.add('active');
+    block.setAttribute('aria-selected','true');
+    const badge = block.querySelector('.position-badge'); if (badge) badge.classList.remove('d-none');
+  }
+  updateToolbarState();
+}
+function getActive(){ return root.querySelector('.position-block.active'); }
+root.addEventListener('click', (e)=>{ const blk=e.target.closest('.position-block'); if(blk&&root.contains(blk)) setActive(blk); });
+
+function deepCloneBlock(block){
+  const clone = block.cloneNode(true);
+  const src = block.querySelectorAll('input, textarea, select');
+  const dst = clone.querySelectorAll('input, textarea, select');
+  src.forEach((s,i)=>{ const d=dst[i]; if(!d) return;
+    if(s.type==='checkbox'||s.type==='radio') d.checked=s.checked;
+    else if(s.tagName==='SELECT') d.selectedIndex=s.selectedIndex;
+    else d.value=s.value;
+  });
+  clone.classList.remove('active'); 
+  clone.setAttribute('aria-selected','false');
+  return clone;
+}
+function deleteBlock(block){
+  const next=block.nextElementSibling||block.previousElementSibling;
+  block.remove();
+  if(next?.classList?.contains('position-block')) setActive(next);
+  updateToolbarState();
+}
+function moveUpBlock(block){ const prev=block.previousElementSibling; if(prev&&prev.classList.contains('position-block')) root.insertBefore(block,prev); }
+function moveDownBlock(block){ const next=block.nextElementSibling; if(next&&next.classList.contains('position-block')) root.insertBefore(next,block); }
+
+/* Buttons im Block */
+function triggerMoveUpBlock(btn){ const blk=btn.closest('.position-block'); if(!blk) return; moveUpBlock(blk); updateToolbarState(); }
+function triggerMoveDownBlock(btn){ const blk=btn.closest('.position-block'); if(!blk) return; moveDownBlock(blk); updateToolbarState(); }
+function triggerCopyBlock(btn){ const blk=btn.closest('.position-block'); if(!blk) return; blk.after(deepCloneBlock(blk)); updateToolbarState(); }
+function triggerDeleteBlock(btn){ const blk=btn.closest('.position-block'); if(!blk) return; deleteBlock(blk); }
+
+/* ===== Toolbar ===== */
+const btnUp=document.getElementById('move-up');
+const btnDown=document.getElementById('move-down');
+const btnCopy=document.getElementById('copy-active');
+const btnNew=document.getElementById('add-new');
+const btnDel=document.getElementById('delete-active');
+
+function updateToolbarState(){
+  const active=getActive(); const hasBlocks=!!root.querySelector('.position-block');
+  btnUp.disabled=!active||!active.previousElementSibling;
+  btnDown.disabled=!active||!active.nextElementSibling;
+  btnCopy.disabled=!hasBlocks; btnDel.disabled=!active;
+}
+
+btnUp.addEventListener('click',()=>{ const active=getActive(); if(!active)return; moveUpBlock(active); updateToolbarState(); });
+btnDown.addEventListener('click',()=>{ const active=getActive(); if(!active)return; moveDownBlock(active); updateToolbarState(); });
+btnCopy.addEventListener('click',()=>{ const active=getActive()||root.querySelector('.position-block'); if(!active)return; root.appendChild(deepCloneBlock(active)); updateToolbarState(); });
+btnNew.addEventListener('click',()=>{ const tmpl=root.querySelector('.position-block'); if(!tmpl)return; 
+  const blank=tmpl.cloneNode(true);
+  blank.querySelectorAll('input').forEach(i=>i.value='');
+  blank.querySelectorAll('textarea').forEach(t=>t.value='');
+  blank.querySelectorAll('select').forEach(s=>s.selectedIndex=0);
+  blank.classList.remove('active'); blank.setAttribute('aria-selected','false');
+  root.appendChild(blank); updateToolbarState();
+});
+btnDel.addEventListener('click',()=>{ const active=getActive(); if(!active)return; deleteBlock(active); });
+
+/* DOMContent */
+document.addEventListener('DOMContentLoaded', () => {
+  toggleExpertFields();
+  updateToolbarState();
+});
+</script>
+
+<!-- Kalender-Modal -->
+<div class="modal fade" id="calendar-container-modal" tabindex="-1" aria-labelledby="calendarModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg"><div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title" id="calendarModalLabel">Datum auswählen</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body"><!-- Calendar will be loaded here --></div>
+  </div></div>
+</div>
+
+{% endblock content %}

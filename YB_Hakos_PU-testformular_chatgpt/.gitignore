@@ -1,0 +1,18 @@
+# local database and config files
+config.json
+instance/
+# profile pictures
+webapp/static/profile_pics/*.jpg
+webapp/static/profile_pics/*.png
+# editor files: 
+*.swp
+.obsidian
+# IDE files:
+.idea/
+# local python files
+**/__pycache__/
+venv/
+# macos specific
+.DS_Store
+/copy_DB_content.sql
+extern/

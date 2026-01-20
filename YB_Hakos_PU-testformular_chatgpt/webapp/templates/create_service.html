@@ -1,0 +1,107 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h1 class="text-center">Antrag für Wartungsarbeiten</h1>
+
+{% if current_user.is_authenticated %}
+<p>Antragssteller: {{ current_user.name }}</p>
+<p>Teleskop: VdS Remotesternwarte in Hakos</p>
+
+<form hx-post="/submit-maintenance" hx-trigger="submit" hx-target="#response" hx-swap="innerHTML">
+    <h4>Zeitraum</h4>
+    <div class="row">
+        <div class="col">
+            <label>Beginn Datum:</label>
+            <input type="hidden" name="beginndatum" id="beginndatum" class="form-control" required>
+            <span id="selected_date_display_beginn">Kein Datum ausgewählt</span>
+            <button type="button" class="btn btn-sm btn-outline-secondary"
+                    hx-get="{{ url_for('orders.show_calendar', picker=True, target_id='beginndatum', display_id='selected_date_display_beginn') }}"
+                    hx-target="#calendar-container-modal .modal-body"
+                    hx-swap="innerHTML"
+                    data-bs-toggle="modal" data-bs-target="#calendar-container-modal">
+                Kalender
+            </button>
+        </div>
+        <div class="col">
+            <label>Beginn Uhrzeit:</label>
+            <input type="time" name="beginnuhrzeit" class="form-control" required>
+        </div>
+        <div class="col">
+            <label>Ende Datum:</label>
+            <input type="date" name="enddatum" class="form-control" required>
+        </div>
+        <div class="col">
+            <label>Ende Uhrzeit:</label>
+            <input type="time" name="enduhrzeit" class="form-control" required>
+        </div>
+    </div>
+
+    <hr>
+    <h4>notwendige Wartungsbereiche</h4>
+    <table>       
+        <tr>
+            <td>
+                <div class="col-20">
+                    <label><input type="checkbox" name="newtoon" value="newton"> Newton</label><br>
+                    <label><input type="checkbox" name="newton_camera" value="newton_camera"> Newton Kamera</label><br>
+                    <label><input type="checkbox" name="newton_filterwheel" value="newton_filterwheel"> Newton Filterrad</label><br>
+                    <label><input type="checkbox" name="newton_focuser" value="newton_focuser"> Newton Fokussierer und Okularauszug</label><br>
+                    <label><input type="checkbox" name="newton_flatpanel" value="newton_flatpanel"> Newton Flatpanel</label><br>
+                </div>
+            </td>
+            <td>
+            </td>            
+            <td>
+                <div class="col-20">
+                    <label><input type="checkbox" name="takahashi" value="takahashi"> Takahashi</label><br>
+                    <label><input type="checkbox" name="takahashi_camera" value="takahashi_camera"> Takahashi Kamera</label><br>
+                    <label><input type="checkbox" name="takahashi_filterwheel" value="takahashi_filterwheel"> Takahashi Filterrad</label><br>
+                    <label><input type="checkbox" name="takahashi_focuser" value="takahashi_focuser"> Takahashi Fokussierer und Okularauszug</label><br>
+                    <label><input type="checkbox" name="takahashi_flatpanel" value="takahashi_flatpanel"> Takahashi Flatpanel</label><br>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div class="col-30">
+                    <label><input type="checkbox" name="computer" value="computer"> Computer</label><br>
+                    <label><input type="checkbox" name="betriebssystem" value="betriebssystem"> Betriebssystem</label><br>
+                    <label><input type="checkbox" name="nina" value="nina"> NINA</label><br>
+                    <label><input type="checkbox" name="andere_software" value="andere_software"> andere Software</label><br>
+                    <label><input type="checkbox" name="ueberwachungskameras" value="ueberwachungskameras"> Überwachungskameras</label>                    
+                </div>
+            </td>
+            <td>
+                </td>
+            </td>
+            <td>
+                <div class="col-30">
+                    <textarea name="sonstiges" rows="1" class="form-control">Freitext für alle anderen Arbeiten</textarea>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <hr>     
+    <div class="text-center">
+        <button type="submit" class="btn btn-primary">Absenden</button>    
+</form>
+<p></p>
+<button type="button" onclick="resetCalendar()">Zurücksetzen</button>
+    </div>
+
+<!-- Modal -->
+<div class="modal fade" id="calendar-container-modal" tabindex="-1" aria-labelledby="calendarModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="calendarModalLabel">Datum auswählen</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Calendar will be loaded here -->
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

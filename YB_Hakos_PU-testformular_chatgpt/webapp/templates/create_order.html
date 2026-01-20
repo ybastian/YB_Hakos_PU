@@ -1,0 +1,89 @@
+{% extends "layout_no_sidebar.html" %}
+{% block content %}
+
+<h2>Teleskopzeit Neu beantragen</h2>
+<form method="post" action="{{ url_for('orders.actionhandler') }}">
+{% if current_user.is_authenticated %}
+<p>Antragssteller: {{ current_user.firstname }} {{ current_user.surname }} ({{ current_user.name }})</p>
+
+<table class="table table-bordered table-striped table-hover">
+    <thead>
+        <tr>
+            <th class="col-fixed-100">Datum</th>
+            <th class="col-fixed-100">Beteiligte</th>
+            <th class="col-fixed-100">Observatorium</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="col-fixed-100">
+                {{ form.request_date(class="form-control", type="hidden") }}
+                <span id="selected_date_display">Kein Datum ausgewählt</span>
+                <button type="button" class="btn btn-sm btn-outline-secondary"
+                        hx-get="{{ url_for('orders.show_calendar', picker=True, target_id=form.request_date.id, display_id='selected_date_display') }}"
+                        hx-target="#calendar-container-modal .modal-body"
+                        hx-swap="innerHTML"
+                        data-bs-toggle="modal" data-bs-target="#calendar-container-modal">
+                    Kalender
+                </button>
+            </td>
+            <td class="col-fixed-100">
+                {{ form.requester_name(class="form-control") }}
+            </td>
+            <td class="col-fixed-100">
+                {{ form.observatory_name(class="form-control") }}
+            </td>
+        </tr>
+    </tbody>
+</table>
+    <p></p>
+<table class="table table-bordered table-striped table-hover mx-auto">
+    <thead>
+        <tr>            
+            <th>Wunsch Poweruser</th>
+            <th>Type</th>
+            <th>Anmerkungen</th>
+        </tr>
+    </thead>    
+    <tbody>            
+            <td>{{form.poweruser_name(placeholder="Poweruser wählen oder leer lassen")}}</td>
+            <td>{{form.request_type()}}</td>
+            <td>{{form.remark(placeholder="Hier können Mitteilungen oder Anmerkungen eingegeben werden")}}</td>
+        </tr>
+
+    </tbody>
+</table>
+
+<br>
+<br>
+  <button type="submit" class="btn" name="action" value="save_order" style="background-color: #a020f0; color: white;">
+   Weiter
+  </button>
+
+<a class="btn btn-warning" style="background-color: #07a0f7; color: white;" href="{{ url_for('orders.show_calendar') }}" >Kalender anzeigen</a>
+
+   <button type="reset" class="btn btn-secondary">
+      Zurücksetzen
+  </button>
+
+
+<a class="btn btn-warning" style="background-color: #007bff; color: white;" href="{{ url_for('main.home') }}" >Zur Startseite</a>
+{% endif %}
+</form>
+
+<!-- Modal -->
+<div class="modal fade" id="calendar-container-modal" tabindex="-1" aria-labelledby="calendarModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="calendarModalLabel">Datum auswählen</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Calendar will be loaded here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}

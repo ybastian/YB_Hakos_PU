@@ -1,0 +1,245 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h1 class="text-center">Antrag für Fachgruppennutzung</h1>
+
+{% if current_user.is_authenticated %}
+<p>Antragssteller: {{ current_user.name }}</p>
+<br>
+<div id="aufnahme-container">
+    <div class="aufnahme-block">         
+<div class="border border-2 border-danger rounded p-3 my-3">
+<table class="table text-center mb-0">    
+    <tr>
+        <td>
+<br>
+<form hx-post="/submit-maintenance" hx-trigger="submit" hx-target="#response" hx-swap="innerHTML">
+    <h4>Beobachtungszeitraum *UTC*</h4>    
+    <div class="row">
+        <div class="col">
+            <label>Beginn Datum:</label>
+            <input type="hidden" name="beginndatum" id="beginndatum" class="form-control" required>
+            <span id="selected_date_display_beginn">Kein Datum ausgewählt</span>
+            <button type="button" class="btn btn-sm btn-outline-secondary"
+                    hx-get="{{ url_for('orders.show_calendar', picker=True, target_id='beginndatum', display_id='selected_date_display_beginn') }}"
+                    hx-target="#calendar-container-modal .modal-body"
+                    hx-swap="innerHTML"
+                    data-bs-toggle="modal" data-bs-target="#calendar-container-modal">
+                Kalender
+            </button>
+        </div>
+        <div class="col">
+            <label>Beginn Uhrzeit:</label>
+            <input type="time" name="beginnuhrzeit" class="form-control" required>
+        </div>
+        <div class="col">
+            <label>Ende Datum:</label>
+            <input type="date" name="enddatum" class="form-control" required>
+        </div>
+        <div class="col">
+            <label>Ende Uhrzeit:</label>
+            <input type="time" name="enduhrzeit" class="form-control" required>
+        </div>
+    </div>
+    <p>Teleskop: VdS Remotesternwarte in Hakos</p>
+    <br>
+    <hr>
+    <br>
+    <h4>Objektangaben</h4>
+    <div class="row">
+        <div class="col-4">
+            <label>Objekt:</label>
+            <select name="Objektdetails" class="form-select">
+                <option value="galaxy_cluster">Objektkategorie</option>
+                <option value="galaxy_cluster">Galaxienhaufen</option>
+                <option value="globular_cluster">Globaler Haufen</option>
+                <option value="open_cluster">Offener Sternhaufen</option>
+                <option value="diffuse_nebulae">Diffuser Nebel</option>
+                <option value="emission_nebulae">Emissionsnebel</option>
+                <option value="reflection_nebulae">Reflektionsnebel</option>
+                <option value="dark_nebulae">Dunkelnebel</option>
+                <option value="planetary_nebulae">Planetarischer Nebel</option>
+                <option value="supernova_remnant">Supernovaüberrest</option>
+                <option value="quasar">Quasar</option>                
+                <option value="quasar">sonstiges</option> 
+            </select>            
+        </div>
+        <div class="col-4">
+            <label>Objektname:</label>
+            <textarea name="objectname" rows="3" class="form-control"></textarea>
+        </div>
+    </div>
+
+    <hr>
+    <h4>Aufnahmedetails (soweit bekannt)</h4>
+    <table class="table table-bordered text-center">
+        <thead>
+            <tr>
+                <th></th> <!-- Platz für Löschen-Button -->
+                <th>Anzahl</th>
+                <th>Belichtungszeit (s)</th>
+                <th>Filter</th>
+                <th>Dithering</th>  
+                <th>Gain</th>
+                <th>Offset</th>                         
+            </tr>
+        </thead>
+        <tbody id="aufnahmeTbody">
+            {% include "aufnahme_zeile_special.html" %}
+        </tbody>
+    </table>
+
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+
+<hr>
+    <div class="text-center">
+        <button type="submit" class="btn btn-primary">Absenden</button>    
+</form>
+<div id="response" class="mt-3"></div>
+<p></p>
+<button type="button" onclick="resetCalendar()">Zurücksetzen</button>
+</div>
+<!-- Zeilen einfügen -->
+<script>
+    function copyRow(button) {
+        const row = button.closest('tr');
+        const clone = row.cloneNode(true);
+    
+        // Lege alle Input-Felder im Clone neu an, damit keine Referenzen doppelt verwendet werden
+        clone.querySelectorAll('input, textarea').forEach(input => {
+            const newInput = input.cloneNode();
+            newInput.value = input.value;  // Optional: Werte mitkopieren
+            input.replaceWith(newInput);
+        });
+    
+        // Button (Funktion Kopieren/Löschen)
+        clone.querySelector('button.btn-danger').onclick = function() {
+            this.closest('tr').remove();
+        };
+        clone.querySelector('button.btn-secondary').onclick = function() {
+            copyRow(this);
+        };
+    
+        document.getElementById('aufnahmeTbody').appendChild(clone);
+    }
+    </script>
+    
+    <!-- Komplett einfügen -->
+    <script>
+        function dupliziereAufnahmeBlock() {
+            const container = document.getElementById('aufnahme-container');
+            const originalBlock = container.querySelector('.aufnahme-block');
+            const clone = originalBlock.cloneNode(true);
+        
+            // Leere alle Felder
+            clone.querySelectorAll('input, textarea, select').forEach(el => {
+                if (el.tagName === 'SELECT') {
+                    el.selectedIndex = 0;
+                } else {
+                    el.value = '';
+                }
+            });
+        
+            // Buttons neu verbinden (falls innerhalb kopierter Zeilen)
+            clone.querySelectorAll('button.btn-danger').forEach(btn => {
+                btn.onclick = function () {
+                    this.closest('tr').remove();
+                };
+            });
+            clone.querySelectorAll('button.btn-secondary').forEach(btn => {
+                btn.onclick = function () {
+                    copyRow(this);
+                };
+            });
+        
+            container.appendChild(clone);
+        }
+        </script>
+
+        <!-- Aufnahmeblock löschen-->
+
+        <script>
+function loescheAufnahmeBlock(button) {
+    const block = button.closest('.aufnahme-block');
+    block.remove();
+}
+</script>
+
+<!-- Aufnahmeblock kopieren -->
+ <script>
+function kopiereAufnahmeBlock(button) {
+    const originalBlock = button.closest('.aufnahme-block');
+    const clone = originalBlock.cloneNode(true);
+
+    // Buttons im geklonten Block neu verbinden
+    clone.querySelectorAll('button.btn-outline-danger').forEach(btn => {
+        btn.onclick = function () {
+            loescheAufnahmeBlock(this);
+        };
+    });
+
+    clone.querySelectorAll('button.btn-outline-secondary').forEach(btn => {
+        btn.onclick = function () {
+            kopiereAufnahmeBlock(this);
+        };
+    });
+
+    // Bei Bedarf auch inneren Zeilen-Kopier/Lösch-Buttons neu verbinden:
+    clone.querySelectorAll('button.btn-danger').forEach(btn => {
+        btn.onclick = function () {
+            this.closest('tr').remove();
+        };
+    });
+    clone.querySelectorAll('button.btn-secondary').forEach(btn => {
+        btn.onclick = function () {
+            copyRow(this);
+        };
+    });
+
+    // Und schließlich anhängen
+    document.getElementById('aufnahme-container').appendChild(clone);
+}
+</script>
+
+<!-- Verschiebemenü-->
+
+<script>
+function moveBlockUp(button) {
+    const block = button.closest('.aufnahme-block');
+    const prev = block.previousElementSibling;
+    if (prev && prev.classList.contains('aufnahme-block')) {
+        block.parentNode.insertBefore(block, prev);
+    }
+}
+
+function moveBlockDown(button) {
+    const block = button.closest('.aufnahme-block');
+    const next = block.nextElementSibling;
+    if (next && next.classList.contains('aufnahme-block')) {
+        block.parentNode.insertBefore(next, block);
+    }
+}
+</script>
+
+<!-- Modal -->
+<div class="modal fade" id="calendar-container-modal" tabindex="-1" aria-labelledby="calendarModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="calendarModalLabel">Datum auswählen</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Calendar will be loaded here -->
+      </div>
+    </div>
+  </div>
+</div>
+        
+{% endif %}
+{% endblock %}

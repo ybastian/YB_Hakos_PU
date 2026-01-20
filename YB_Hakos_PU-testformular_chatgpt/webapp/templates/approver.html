@@ -1,0 +1,76 @@
+{% extends "layout_no_sidebar.html" %}
+{% block content %}
+    <h1>Approver</h1>
+
+{% if current_user.is_authenticated %}
+<p>
+    <span style="margin-right:50px;">
+        Genehmiger: {{current_user.firstname}} {{current_user.surname}}
+    </span>
+        Zum Genemigen stehen {{orders|length}} Beobachtungsanträge an.
+</p>
+    <p><a class="btn btn-primary" href="{{ url_for('posts.new_post') }}">Ankündigung verfassen</a></p>
+
+{% if orders|length > 0 %}
+
+<table class="table table-bordered table-striped table-hover">
+    <thead>
+        <tr>
+            <th>Aktion</th>
+            <th>Status</th>
+            <th>Datum</th>
+            <th>Beteiligte</th>
+            <th>Observatorium</th>
+            <th>Motivation</th>
+            <th>Wunsch Poweruser</th>
+            <th>Type</th>
+            <th>Anmerkungen</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for order in orders %}
+        <tr>
+            <td>
+                <a href="{{ url_for('orders.show_order_positions', order_id=order.id) }}" class="btn btn-sm btn-secondary" title="Show">
+                    <i class="bi bi-eye"></i>
+                </a>
+                {% if order.status != CONSTANTS.ORDER_STATUS_CREATED %}
+                    <a href="{{ url_for('orders.edit_order_pos', order_id=order.id) }}" class="btn btn-sm btn-primary" title="Edit">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <form method="post" action="{{ url_for('orders.approve_order', order_id=order.id) }}" style="display:inline;" onsubmit="return confirm('Du willst diesen genehmigen?');">
+                      <button type="submit" class="btn btn-sm btn-success" title="Genehmingen">
+                      <i class="bi bi-hand-thumbs-up-fill"></i>
+                      </button>
+                    </form>
+                     <form method="post" action="{{ url_for('orders.reject_order', order_id=order.id) }}" style="display:inline;" onsubmit="return confirm('Du willst diesen Antrag zurückweisen?');">
+                      <button type="submit" class="btn btn-sm btn-danger" title="Ablehnen">
+                      <i class="bi bi-hand-thumbs-down"></i>
+                      </button>
+                    </form>
+                {% endif %}
+
+
+            </td>
+            <td>{{ order.status_label }}</td>
+            <td>{{ order.request_date.strftime('%d.%m.%Y') }}</td>
+            <td>{{ order.name }}</td>
+            <td>{{ order.observatory_name }}</td>
+            <td>{{ order.request_purpose }}</td>
+            <td>{{ order.poweruser_name if order.poweruser_name else '-' }}
+            <td>{{ order.request_type }}</td>
+            <td>{{ order.remark }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+<br>
+
+<form method="post" action="{{ url_for('main.poweruser') }}">
+
+{% endif %}
+<a class="btn btn-warning" style="background-color: #007bff; color: white;" href="{{ url_for('main.home') }}" >Zur Startseite</a>
+</form>
+
+{% endblock %}

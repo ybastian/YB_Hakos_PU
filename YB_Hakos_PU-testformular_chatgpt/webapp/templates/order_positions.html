@@ -1,0 +1,50 @@
+{% extends "layout_no_sidebar.html" %}
+{% block content %}
+
+<h2>Antrag zum {{ order.request_date.strftime('%d.%m.%Y') }} Teilnehmer: {{ order.name }}</h2>
+<p>Antragssteller: {{ current_user.firstname }} {{ current_user.surname }}</p>
+<p>Status: {{ order.status_label }}</p>
+
+<h3>Schritte</h3>
+<table class="table table-bordered table-striped table-hover">
+    <thead>
+        <tr>
+            <th>Teleskop</th>
+            <th>Filterset</th>
+            <th>Rubrik</th>
+            <th>Objekt</th>
+            <th>Koordinaten</th>
+            <th>Sperre</th>
+            <th>Anzahl Bilder</th>
+            <th>Bel. Zeit</th>
+            <th>Startzeit</th>
+            <th>Gain</th>
+            <th>Offset</th>
+            <th>Dithern</th>
+            <th>Fokussieren</th>
+        </tr>
+    </thead>
+    {% for order_pos in order_position %}
+        <tr>
+            <td>{{order_pos.telescope.name}}</td>
+            <td>{{order_pos.filterset.name}}</td>
+            <td>{{order_pos.target_objecttype}}</td>
+            <td>{{order_pos.target}}</td>
+            <td>{{order_pos.target_coordinates if order_pos.target_coordinates else '-' }}
+            <td> {{ '✓' if order_pos.target_coordinates_lock == '1' else '✗' }} </td>
+            <td>{{order_pos.exposure_count}}</td>
+            <td>{{order_pos.exposure_time}}</td>
+            <td>{{ order_pos.exposure_starttime('%H:%M') if order_pos.exposure_starttime else '-' }}
+            <td>{{order_pos.exposure_gain}}</td>
+            <td>{{order_pos.exposure_offset}}</td>
+            <td>{{order_pos.exposure_dither}}</td>
+            <td>{{order_pos.exposure_focus}}</td>
+        </tr>
+    {% endfor %}
+    <tbody>
+</table>
+<br>
+
+<button type="button" onclick="history.back();">Zurück</button>
+
+{% endblock content %}
