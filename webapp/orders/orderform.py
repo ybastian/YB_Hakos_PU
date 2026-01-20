@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, IntegerField, SubmitField, FieldList, FormField, SelectField, BooleanField
 from wtforms.fields.datetime import DateField, TimeField
 from wtforms.fields.simple import HiddenField, TextAreaField
-from wtforms.validators import DataRequired, InputRequired, NumberRange, ValidationError
+from wtforms.validators import DataRequired, InputRequired, NumberRange, ValidationError, Optional
 from datetime import date
 from .constants import REQUEST_CHOICES
 
@@ -95,13 +95,32 @@ class ObservationRequestPositionForm(FlaskForm):
     target_objecttype = SelectField('Objekttyp', choices=[], validators=[DataRequired()])
     target_coordinates = StringField('Target_coordinates')
     target_coordinates_lock = BooleanField('target_coordinates_lock')
-    exposure_starttime = TimeField('exposure_starttime', format='%H:%M')
-    exposure_count  = IntegerField('Menge', validators=[InputRequired(), NumberRange(min=1)])
-    exposure_time   = IntegerField('exposure_time', validators=[InputRequired(), NumberRange(min=1)])
-    exposure_gain   = IntegerField('exposure_gain', validators=[InputRequired(), NumberRange(min=0)])
-    exposure_offset = IntegerField('exposure_offset', validators=[InputRequired(), NumberRange(min=0)])
-    exposure_focus  = IntegerField('exposure_focus', validators=[InputRequired(), NumberRange(min=0)])
-    exposure_dither = IntegerField('exposure_dither', validators=[InputRequired(), NumberRange(min=0)])
+    exposure_starttime = TimeField(
+    'exposure_starttime',
+    format='%H:%M',
+    validators=[Optional()]
+)
+
+exposure_gain = IntegerField(
+    'exposure_gain',
+    validators=[Optional(), NumberRange(min=0)]
+)
+
+exposure_offset = IntegerField(
+    'exposure_offset',
+    validators=[Optional(), NumberRange(min=0)]
+)
+
+exposure_focus = IntegerField(
+    'exposure_focus',
+    validators=[Optional(), NumberRange(min=0)]
+)
+
+exposure_dither = IntegerField(
+    'exposure_dither',
+    validators=[Optional(), NumberRange(min=0)]
+)
+
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

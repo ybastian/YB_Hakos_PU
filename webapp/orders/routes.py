@@ -1,5 +1,7 @@
 from flask import (render_template, url_for, flash,
                    redirect, request, abort, jsonify)
+from werkzeug.datastructures import MultiDict
+import re
 from flask_login import current_user, login_required
 from flask import current_app
 from datetime import date, datetime
@@ -13,6 +15,42 @@ from .constants import ORDER_STATUS_LABELS, ORDER_STATUS_CREATED, ORDER_STATUS_W
 from .orderservices import (copy_order_service, delete_order_service, calendar_service, resolve_coordinates_service,
                             init_new_order_service, init_new_orderpos_service,
                             set_user_preference_service, get_user_preference_service)
+
+_POS_KEY_RE = re.compile(r"^(positions)-(\d+)-(.*)$")
+
+def _normalize_positions_formdata(formdata: MultiDict) -> MultiDict:
+    """
+    WTForms FieldList bricht ab, sobald ein Index fehlt (z.B. 0,2 ohne 1).
+    Diese Funktion nummeriert positions-* beim POST neu durch.
+    """
+    indices = set()
+
+    for key in formdata.keys():
+        m = _POS_KEY_RE.match(key)
+        if m:
+            indices.add(int(m.group(2)))
+
+    if not indices:
+        return formdata
+
+    mapping = {old: new for new, old in enumerate(sorted(indices))}
+    normalized = MultiDict()
+
+    for key in formdata.keys():
+        values = formdata.getlist(key)
+        m = _POS_KEY_RE.match(key)
+
+        if m:
+            new_key = f"positions-{mapping[int(m.group(2))]}-{m.group(3)}"
+        else:
+            new_key = key
+
+        for v in values:
+            normalized.add(new_key, v)
+
+    return normalized
+
+
 
 # # ------------------------------------------------------------------
 # # User preference laden
