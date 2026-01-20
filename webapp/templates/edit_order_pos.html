@@ -514,19 +514,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 <button type="button" class="btn btn-sm btn-danger"    onclick="deleteRow(this)" title="Zeile löschen"><i class="bi bi-trash"></i></button>
               </div>
             </td>
-            <td class="text-center">{{ subform.filterset(size=1, class_='filterset_box', data_row=loop.index0) }}</td>
-            <td class="expert-field">{{ subform.target_coordinates }}</td>
-            <td class="expert-field">{{ subform.target_coordinates_lock(size=1) }}</td>
-            <td class="text-center">{{ subform.exposure_count(size=2) }}</td>
-            <td class="text-center">{{ subform.exposure_time(size=2) }}</td>
+            <td class="text-center">{{ subform.form.filterset(size=1, class_='filterset_box', data_row=loop.index0) }}</td>
+            <td class="expert-field">{{ subform.form.target_coordinates }}</td>
+            <td class="expert-field">{{ subform.form.target_coordinates_lock(size=1) }}</td>
+            <td class="text-center">{{ subform.form.exposure_count(size=2) }}</td>
+            <td class="text-center">{{ subform.form.exposure_time(size=2) }}</td>
             <td class="d-flex justify-content-center align-items-center">
               <div class="form-check"><input class="form-check-input" type="checkbox" id="coord-toggle"></div>
             </td>
-            <td class="expert-field">{{ subform.exposure_starttime(size=1, placeholder="HH:MM") }}</td>
-            <td class="expert-field">{{ subform.exposure_gain(size=1) }}</td>
-            <td class="expert-field">{{ subform.exposure_offset(size=1) }}</td>
-            <td class="expert-field">{{ subform.exposure_dither(size=1) }}</td>
-            <td class="expert-field">{{ subform.exposure_focus(size=1) }}</td>            
+            <td class="expert-field">{{ subform.form.exposure_starttime(size=1, placeholder="HH:MM") }}</td>
+            <td class="expert-field">{{ subform.form.exposure_gain(size=1) }}</td>
+            <td class="expert-field">{{ subform.form.exposure_offset(size=1) }}</td>
+            <td class="expert-field">{{ subform.form.exposure_dither(size=1) }}</td>
+            <td class="expert-field">{{ subform.form.exposure_focus(size=1) }}</td>            
           </tr>
         </tbody>
       </table>

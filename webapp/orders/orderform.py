@@ -122,7 +122,7 @@ exposure_dither = IntegerField(
 )
 
 
-    def __init__(self, *args, **kwargs):
+def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.target_objecttype.choices = [('-1', 'Auswählen oder leerlassen')] + [
             (x.Objecttype, x.Objecttype) for x in objecttype_query()
