@@ -1,0 +1,44 @@
+[paste.app_factory]
+cgi = paste.cgiapp:make_cgi_application [subprocess]
+pkg_resources = paste.urlparser:make_pkg_resources
+proxy = paste.proxy:make_proxy
+static = paste.urlparser:make_static
+test = paste.debug.debugapp:make_test_app
+test_slow = paste.debug.debugapp:make_slow_app
+transparent_proxy = paste.proxy:make_transparent_proxy
+urlparser = paste.urlparser:make_url_parser
+watch_threads = paste.debug.watchthreads:make_watch_threads
+
+[paste.composite_factory]
+cascade = paste.cascade:make_cascade
+urlmap = paste.urlmap:urlmap_factory
+
+[paste.filter_app_factory]
+auth_basic = paste.auth.basic:make_basic
+auth_cookie = paste.auth.cookie:make_auth_cookie
+auth_digest = paste.auth.digest:make_digest
+auth_form = paste.auth.form:make_form
+auth_tkt = paste.auth.auth_tkt:make_auth_tkt_middleware
+cgitb = paste.cgitb_catcher:make_cgitb_middleware
+config = paste.config:make_config_filter
+cowbell = paste.cowbell:make_cowbell
+error_catcher = paste.exceptions.errormiddleware:make_error_middleware
+errordocument = paste.errordocument:make_errordocument
+evalerror = paste.evalexception.middleware:make_eval_exception
+flup_session = paste.flup_session:make_session_middleware [Flup]
+grantip = paste.auth.grantip:make_grantip
+gzip = paste.gzipper:make_gzip_middleware
+httpexceptions = paste.httpexceptions:make_middleware
+lint = paste.lint:make_middleware
+openid = paste.auth.open_id:make_open_id_middleware [openid]
+paste_session = paste.session:make_session_middleware
+pony = paste.pony:make_pony
+printdebug = paste.debug.prints:PrintDebugMiddleware
+profile = paste.debug.profile:make_profile_middleware [hotshot]
+recursive = paste.recursive:make_recursive_middleware
+registry = paste.registry:make_registry_manager
+translogger = paste.translogger:make_filter
+wdg_validate = paste.debug.wdg_validate:make_wdg_validate_middleware [subprocess]
+
+[paste.server_runner]
+http = paste.httpserver:server_runner
