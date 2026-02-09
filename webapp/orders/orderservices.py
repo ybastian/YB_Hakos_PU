@@ -43,7 +43,7 @@ def init_new_order_service():
     order.poweruser_name = None
     order.request_poweruser_id = None
     order.request_observatory_id = None
-    order.request_purpose = ''
+    #order.request_purpose = ''
     return order
 
 # --------------------------------------------------------------------------

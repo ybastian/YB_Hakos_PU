@@ -180,7 +180,7 @@ def actionhandler():
         order_head.request_date = form.request_date.data
         order_head.name = form.requester_name.data
         order_head.request_observatory_id = form.observatory_name.data
-        order_head.request_purpose = form.request_purpose.data
+        #order_head.request_purpose = form.request_purpose.data
         order_head.request_poweruser_id = form.poweruser_name.data
         order_head.request_type = form.request_type.data
         order_head.remark = form.remark.data
@@ -236,7 +236,7 @@ def edit_order_pos(order_id):
             "request_date": order_head.request_date,
             "requester_name": order_head.name,
             "observatory_name": order_head.request_observatory_id,
-            "request_purpose": order_head.request_purpose,
+            #"request_purpose": order_head.request_purpose,
             "poweruser_name": order_head.request_poweruser_id,
             "request_type": order_head.request_type,
             "remark": order_head.remark,
@@ -368,7 +368,7 @@ def edit_order_pos(order_id):
         # Kopf speichern
         order_head.request_date = form.head.request_date.data
         order_head.name = form.head.requester_name.data
-        order_head.request_purpose = form.head.request_purpose.data
+        #order_head.request_purpose = form.head.request_purpose.data
         order_head.request_poweruser_id = form.head.poweruser_name.data or None
         order_head.request_type = form.head.request_type.data
         order_head.remark = form.head.remark.data

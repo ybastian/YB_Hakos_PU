@@ -67,16 +67,16 @@ class ObservationRequestHead(FlaskForm):
     request_date = DateField('Datum', format='%Y-%m-%d', validators=[DataRequired() ])
     requester_name = StringField('Beteiligte', validators=[DataRequired()])
     observatory_name = SelectField('Observatorium', choices=[], validators=[DataRequired()])
-    request_purpose = SelectField('Motivation', choices=[])
+    #request_purpose = SelectField('Motivation', choices=[])
     poweruser_name = SelectField('Wunsch Poweruser', choices=[])
     request_type = SelectField('Type', choices=REQUEST_CHOICES)
     remark = TextAreaField('Anmerkungen')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.request_purpose.choices = [('', 'Auswählen oder leer lassen')] + [
-            (x.Motivation, x.Motivation) for x in motivation_query()
-        ]
+        #self.request_purpose.choices = [('', 'Auswählen oder leer lassen')] + [
+        #    (x.Motivation, x.Motivation) for x in motivation_query()
+        #]
         self.observatory_name.choices = [('', 'Auswählen')] + [
             (str(x.id), x.name) for x in observatory_query()
         ]

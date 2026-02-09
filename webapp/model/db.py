@@ -332,7 +332,7 @@ class ObservationRequest(db.Model):
     request_date: Mapped[datetime] = mapped_column(db.DateTime, nullable=False)
     request_observatory_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey('observatory.id'), nullable=False)
     request_type: Mapped[str] = mapped_column(db.String(10), unique=False, nullable=False)  # Beobachtung, Führung, Wartung ...
-    request_purpose: Mapped[str] = mapped_column(db.String(100), unique=False, nullable=False)  # Pritty pictures, Wissenschaft, Forschung ..
+    #request_purpose: Mapped[str] = mapped_column(db.String(100), unique=False, nullable=False)  # Pritty pictures, Wissenschaft, Forschung ..
     request_poweruser_id: Mapped[str] = mapped_column(db.Integer, db.ForeignKey('poweruser.id'), nullable=True)
     remark: Mapped[str] = mapped_column(db.String(2000), nullable=True)
     status: Mapped[str] = mapped_column(db.String(10), nullable=False, default='0')
