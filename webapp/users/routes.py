@@ -2,7 +2,7 @@ from flask import render_template, url_for, flash, redirect, request
 from flask_login import login_user, current_user, logout_user, login_required
 from urllib.parse import urlparse
 from webapp import bcrypt, db
-from webapp.model.db import User, Post
+from webapp.model.db import User, Post, Role
 from webapp.users import users
 from webapp.users.forms import (RegistrationForm, LoginForm, UpdateAccountForm,
                                    RequestResetForm, ResetPasswordForm)
@@ -16,24 +16,36 @@ def register():
         return redirect(url_for('main.home'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        new_user = User(name=form.username.data,
-                    email=form.email.data,
-                    password=hashed_password,
-                    firstname=form.firstname.data,
-                    surname=form.surname.data,
-                    vds_number=form.vds_number.data,
-                    role='Gast',
-                    approved=False
-                    )
+        hashed_password = bcrypt.generate_password_hash(
+            form.password.data
+            ).decode('utf-8')
+        new_user = User(
+            name=form.username.data,
+            email=form.email.data,
+            password=hashed_password,
+            firstname=form.firstname.data,
+            surname=form.surname.data,
+            vds_number=form.vds_number.data
+        )
+
+        # Gruppe bestimmen
+        guest_role = Role.query.filter_by(name="GuestRole").first()
+        if not guest_role or not guest_role.groups:
+            flash('Konfigurationsfehler: Keine Gruppe gefunden, die "GuestRole" enthält.', 'error')
+            return render_template('register.html', title='Register', form=form)
+
+        guest_group = guest_role.groups[0]
+        new_user.groups.append(guest_group)
+
         db.session.add(new_user)
         try:
             db.session.commit()
         except Exception as e:
             db.session.rollback()
             flash(f'Es ist ein Fehler aufgetreten: {e}. Bitte melden Sie sich beim Systemadministrator.', 'error')
+            return render_template('register.html', title='Register', form=form)
 
-        flash('Ihr Benutzer ist registriert! Sie können sich jetzt anmelden', 'success')
+        flash('Ihr Benutzer ist registriert! Nach der Freigabe können sich anmelden', 'success')
         return redirect(url_for('users.login'))
     return render_template('register.html', title='Register', form=form)
 

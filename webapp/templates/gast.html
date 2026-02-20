@@ -1,65 +1,67 @@
 {% extends "layout_no_sidebar.html" %}
-{% block content %}
-    <h1>Neuzugänge</h1>
 
-{% if current_user.is_authenticated %}
-<p>
-    <span style="margin-right:50px;">
-        Genehmiger: {{current_user.firstname}} {{current_user.surname}}
-    </span>
-        Zum Genemigen neuer Benutzer stehen {{ guest_count }} Neuregistrierungen an.
-</p>
-    
-<table class="table table-bordered table-striped table-hover">
-    <thead>
-        <tr>
+{% block content %}
+  <h1>Neuzugänge</h1>
+
+  {% if current_user.is_authenticated %}
+    <p>
+      <span style="margin-right:50px;">
+        Genehmiger: {{ current_user.firstname }} {{ current_user.surname }}
+      </span>
+      Zum Genehmigen neuer Benutzer stehen {{ guest_count }} Neuregistrierungen an.
+    </p>
+
+    {% if guest_count == 0 %}
+      <div class="alert alert-success">
+        Es stehen aktuell keine Neuregistrierungen an.
+      </div>
+    {% else %}
+      <table class="table table-bordered table-striped table-hover">
+        <thead>
+          <tr>
+            <th>Aktion</th>
             <th>VdS Nr.</th>
-            <th>Name</th>
+            <th>Nachname</th>
             <th>Vorname</th>
             <th>Emailadresse</th>
             <th>Benutzername</th>
-        </tr>
-    </thead>
-    <tbody>
-    {% for order in orders %}
-        <tr>
-            <td>
-                <a href="{{ url_for('orders.show_order_positions', order_id=order.id) }}" class="btn btn-sm btn-secondary" title="Show">
-                    <i class="bi bi-eye"></i>
-                </a>
-                {% if order.status != CONSTANTS.ORDER_STATUS_CREATED %}
-                    <a href="{{ url_for('orders.edit_order_pos', order_id=order.id) }}" class="btn btn-sm btn-primary" title="Edit">
-                        <i class="bi bi-pencil"></i>
-                    </a>
-                    <form method="post" action="{{ url_for('orders.approve_order', order_id=order.id) }}" style="display:inline;" onsubmit="return confirm('Neuling wirklich genehmigen?');">
-                      <button type="submit" class="btn btn-sm btn-success" title="Genehmingen">
-                      <i class="bi bi-hand-thumbs-up-fill"></i>
-                      </button>
-                    </form>
-                     <form method="post" action="{{ url_for('orders.reject_order', order_id=order.id) }}" style="display:inline;" onsubmit="return confirm('Neuling ablehnen?');">
-                      <button type="submit" class="btn btn-sm btn-danger" title="Ablehnen">
-                      <i class="bi bi-hand-thumbs-down"></i>
-                      </button>
-                    </form>
-                {% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in guest_users %}
+            <tr>
+              <td>
+                <form method="post"
+                      action="{{ url_for('main.approve_guest', user_id=user.id) }}"
+                      style="display:inline;"
+                      onsubmit="return confirm('Neuling wirklich genehmigen?');">
+                  <button type="submit" class="btn btn-sm btn-success" title="Genehmigen">
+                    <i class="bi bi-hand-thumbs-up-fill"></i>
+                  </button>
+                </form>
 
+                <form method="post"
+                      action="{{ url_for('main.reject_guest', user_id=user.id) }}"
+                      style="display:inline;"
+                      onsubmit="return confirm('Neuling ablehnen?');">
+                  <button type="submit" class="btn btn-sm btn-danger" title="Ablehnen">
+                    <i class="bi bi-hand-thumbs-down"></i>
+                  </button>
+                </form>
+              </td>
 
-            </td>
-            <td>{{ user_id }}</td>
-            <td>{{ order.user_name }}</td>
-            <td>{{ order.vorname }}</td>
-            <td>{{ order.mail }}</td>
-            <td>{{ order.username }}</td>
-        </tr>
-    {% endfor %}
-    </tbody>
-</table>
-<br>
+              <td>{{ user.vds_number }}</td>
+              <td>{{ user.surname }}</td>
+              <td>{{ user.firstname }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.name }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
 
-<form method="post" action="{{ url_for('main.approver') }}">
-
-{% endif %}
-<a class="btn btn-warning" style="background-color: #007bff; color: white;" href="{{ url_for('main.home') }}" >Zur Startseite</a>
-</form>
-
-{% endblock %}
+    <a class="btn btn-warning" style="background-color:#007bff; color:white;"
+       href="{{ url_for('main.home') }}">Zur Startseite</a>
+  {% endif %}
+{% endblock content %}
