@@ -8,14 +8,16 @@ from webapp.model.db import Post, SystemParameters, ObservationRequest
 from webapp.orders.constants import USER_ROLE_ADMIN, ORDER_STATUS_LABELS, ORDER_STATUS_WAITING, \
     ORDER_STATUS_PU_REJECTED, ORDER_STATUS_PU_ACCEPTED
 from webapp.orders.constants import ORDER_STATUS_APPROVED, ORDER_STATUS_PU_ASSIGNED
-
+from webapp.model.db import User
 
 @main.route("/")
 @main.route("/home")
 def home():
     page = request.args.get('page', 1, type=int)
     posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
-    return render_template('home.html', posts=posts)
+    guest_users = User.by_role("GuestRole")
+    guest_count = len(guest_users)
+    return render_template('home.html', guest_users=guest_users, guest_count=guest_count, posts=posts)
 
 # -------------------------------------------------------------
 #
@@ -86,3 +88,10 @@ def request_georg():
 @main.route("/add-row")
 def add_row():
     return render_template("aufnahme_zeile.html")
+
+@main.route("/gast")
+@login_required
+def gast():    
+    guest_users = User.by_role("GuestRole") or []
+    guest_count = len(guest_users)
+    return render_template("gast.html", title="Neuregistrierungen", guest_users=guest_users, guest_count=guest_count)

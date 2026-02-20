@@ -17,14 +17,16 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = User(name=form.username.data,
+        new_user = User(name=form.username.data,
                     email=form.email.data,
                     password=hashed_password,
                     firstname=form.firstname.data,
                     surname=form.surname.data,
-                    vds_number=form.vds_number.data
+                    vds_number=form.vds_number.data,
+                    role='Gast',
+                    approved=False
                     )
-        db.session.add(user)
+        db.session.add(new_user)
         try:
             db.session.commit()
         except Exception as e:
