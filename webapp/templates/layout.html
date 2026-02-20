@@ -34,8 +34,10 @@
                     <div class="collapse navbar-collapse" id="navbarToggle">
                         <div class="navbar-nav me-auto align-items-center gap-2">                                                       
                             {% if current_user.is_authenticated %}
-                             <a class="nav-item nav-link" href="{{ url_for('orders.show_orders') }}">Antrag</a>
-                            <a class="nav-item nav-link" href="{{ url_for('orders.show_calendar') }}">Kalender</a>                    
+                            {% if current_user.is_authenticated and current_user.has_role("UserRole") %}
+                            <a class="nav-item nav-link" href="{{ url_for('orders.show_orders') }}">Antrag</a>
+                            <a class="nav-item nav-link" href="{{ url_for('orders.show_calendar') }}">Kalender</a>
+    {% endif %}                   
                                 
                                     {% if current_user.has_role(CONSTANTS.USER_ROLE_POWERUSER) %}
 <!-- Menü -->
