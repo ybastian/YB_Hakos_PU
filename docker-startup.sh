@@ -1,5 +1,7 @@
-#!/bin/sh -x
-python --version
+#!/bin/sh
+echo "Running docker-startup.sh"
+echo "Upgrade database if needed"
 flask --app app.py db upgrade
-cat prod.py
-exec python prod.py
+echo "Run flask app"
+flask --app prod.py run
+#exec python prod.py

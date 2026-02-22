@@ -13,7 +13,8 @@ importlib_metadata==8.7.1
 jinja_partials==0.3.1
 Paste==3.10.1
 PySocks==1.7.1
-psycopg==3.3.3
+psycopg2==2.9.11
+psycopg2-binary==2.9.11
 sqlalchemy_schemadisplay==2.0
 tzlocal==5.3.1
 waitress==3.0.2
