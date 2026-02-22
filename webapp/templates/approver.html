@@ -57,43 +57,52 @@
   {% if meldungen|length == 0 %}
     <span class="text-muted">Keine Rückmeldungen</span>
   {% else %}
-    <div class="d-flex flex-column gap-1">
-      {% for m in meldungen %}
-        <label class="d-flex align-items-center gap-2">
-          <input type="radio"
-                 name="selected_poweruser_{{ order.id }}"
-                 value="{{ m.user_id }}"
-                 class="form-check-input">
+  <div id="pu-select-{{ order.id }}" class="d-flex flex-column gap-1">
 
-          <span>{{ m.name }}</span>
+    {% for m in meldungen %}
+      <label class="d-flex align-items-center gap-2">
+<input type="radio"
+       name="poweruser_user_id_{{ order.id }}"
+       value="{{ m.user_id }}"
+       class="form-check-input">
 
-          {% if m.availability == 1 %}
-            <span class="badge bg-success">Möglich</span>
-          {% elif m.availability == 2 %}
-            <span class="badge bg-warning text-dark">Vielleicht</span>
-          {% elif m.availability == 3 %}
-            <span class="badge bg-danger">Nein</span>
-          {% else %}
-            <span class="badge bg-secondary">?</span>
-          {% endif %}
-        </label>
-      {% endfor %}
+        <span>{{ m.name }}</span>
 
-      <button type="button"
-              class="btn btn-sm btn-outline-primary mt-1"
-              hx-post="{{ url_for('orders.approver_assign_poweruser') }}"
-              hx-include="[name='selected_poweruser_{{ order.id }}']:checked"
-              hx-vals='{"order_id":"{{ order.id }}"}'
-              hx-target="#pu-assign-feedback-{{ order.id }}"
-              hx-swap="outerHTML">
-        Poweruser zuweisen
-      </button>
+        {% if m.availability == 1 %}
+          <span class="badge bg-success">Möglich</span>
+        {% elif m.availability == 2 %}
+          <span class="badge bg-warning text-dark">Vielleicht</span>
+        {% elif m.availability == 3 %}
+          <span class="badge bg-danger">Nein</span>
+        {% else %}
+          <span class="badge bg-secondary">?</span>
+        {% endif %}
+      </label>
+    {% endfor %}
 
-      <span id="pu-assign-feedback-{{ order.id }}"></span>
-    </div>
-  {% endif %}
+    <button id="pu-assign-btn-{{ order.id }}"
+        type="button"
+        class="btn btn-sm btn-outline-primary mt-1"
+        hx-post="{{ url_for('orders.approver_assign_poweruser') }}"
+        hx-include="closest tr"
+        hx-vals='{"order_id":"{{ order.id }}"}'
+        hx-target="#pu-assign-feedback-{{ order.id }}"
+        hx-swap="outerHTML">
+  Poweruser zuweisen
+</button>
+
+<span id="pu-assign-feedback-{{ order.id }}"></span>
+
+  </div>
+{% endif %}
 </td>
-            <td>{{ order.status_label }}</td>            
+            <td>{{ order.status_label }} {% if order.request_poweruser %}
+    <br>
+    <span class="badge bg-info text-dark">
+      {{ order.request_poweruser.firstname }}
+      {{ order.request_poweruser.surname }}
+    </span>
+  {% endif %}</td>            
             <td>{{ order.request_date.strftime('%d.%m.%Y') }}</td>
             <td>{{ order.name }}</td>
             <td>{{ order.observatory_name }}</td>

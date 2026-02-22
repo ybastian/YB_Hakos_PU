@@ -546,12 +546,15 @@ def pu_accept(order_id):
 @orders.route("/approver/assign_poweruser", methods=["POST"])
 @login_required
 def approver_assign_poweruser():
+
+    print(">>> ASSIGN RAW", request.get_data(as_text=True))
+    print(">>> ASSIGN FORM", dict(request.form))
     
     order_id = request.form.get("order_id", type=int)
     poweruser_user_id = request.form.get("poweruser_user_id", type=int)
 
     if not order_id or not poweruser_user_id:
-        return f'<span id="pu-assign-feedback-{order_id or 0}" class="text-danger ms-2">Bitte Poweruser wählen</span>', 400
+        return f'<span id="pu-assign-feedback-{order_id or 0}" class="text-danger ms-2">Bitte Poweruser wählen</span>'
 
     order = ObservationRequest.query.get_or_404(order_id)
 
@@ -560,7 +563,26 @@ def approver_assign_poweruser():
 
     db.session.commit()
 
-    return f'<span id="pu-assign-feedback-{order_id}" class="text-success ms-2">✓ Poweruser zugewiesen</span>'
+    return f"""
+    <button id="pu-assign-btn-{order_id}"
+            type="button"
+            class="btn btn-sm btn-success mt-1"
+            disabled>
+      ✓ Zugewiesen
+    </button>
+    """
+
+ return f"""
+<span id="pu-assign-feedback-{order_id}" class="text-success ms-2">✓ Poweruser zugewiesen</span>
+
+<button id="pu-assign-btn-{order_id}"
+        hx-swap-oob="true"
+        type="button"
+        class="btn btn-sm btn-success mt-1"
+        disabled>
+  ✓ Zugewiesen
+</button>
+"""
 
 # --------------------------------------------------------------------
 # Der Kontrolleur (Approver) weist Antrag zurück
