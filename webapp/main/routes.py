@@ -4,11 +4,12 @@ from flask import render_template, request, url_for
 from flask_login import login_required
 from flask_login import current_user
 from webapp.main import main
-from webapp.model.db import db, Post, SystemParameters, ObservationRequest, PoweruserMeldung
+from webapp.model.db import db, Post, SystemParameters, ObservationRequest, PoweruserMeldung, User
 from webapp.orders.constants import USER_ROLE_ADMIN, ORDER_STATUS_LABELS, ORDER_STATUS_WAITING, \
     ORDER_STATUS_PU_REJECTED, ORDER_STATUS_PU_ACCEPTED
 from webapp.orders.constants import ORDER_STATUS_APPROVED, ORDER_STATUS_PU_ASSIGNED
 from sqlalchemy.exc import IntegrityError
+from collections import defaultdict
 
 @main.route("/")
 @main.route("/home")
@@ -58,10 +59,6 @@ def poweruser():
 
         return f'<span id="pu-feedback-{order_id}" class="text-success ms-2">✓ Gespeichert (DB)</span>'
 
-
-
-
-
     all_orders = (
         ObservationRequest.query
         .filter(ObservationRequest.status.in_([ORDER_STATUS_APPROVED, ORDER_STATUS_PU_ASSIGNED]))
@@ -74,17 +71,48 @@ def poweruser():
 # -------------------------------------------------------------
 #
 # -------------------------------------------------------------
-@main.route("/approver", methods=['GET'])
+@main.route("/approver", methods=["GET"])
 @login_required
 def approver():
 
     all_orders = (
         ObservationRequest.query
-        .filter(ObservationRequest.status.in_([ORDER_STATUS_WAITING, ORDER_STATUS_PU_ASSIGNED, ORDER_STATUS_PU_REJECTED, ORDER_STATUS_PU_ACCEPTED]))
+        .filter(ObservationRequest.status.in_([ORDER_STATUS_WAITING, ORDER_STATUS_APPROVED, ORDER_STATUS_PU_ASSIGNED, ORDER_STATUS_PU_REJECTED, ORDER_STATUS_PU_ACCEPTED]))
         .all()
     )
     for order in all_orders: order.status_label = ORDER_STATUS_LABELS.get(order.status, "??")
-    return render_template('approver.html', title='Approver', orders=all_orders)
+       
+
+    order_ids = [o.id for o in all_orders]
+
+    pu_meldungen_by_order = defaultdict(list)
+    if order_ids:
+        rows = (
+            db.session.query(
+                PoweruserMeldung.observation_request_id,
+                PoweruserMeldung.poweruser_user_id,
+                PoweruserMeldung.availability,
+                User.name,
+                User.firstname,
+                User.surname,
+            )
+            .join(User, User.id == PoweruserMeldung.poweruser_user_id)
+            .filter(PoweruserMeldung.observation_request_id.in_(order_ids))
+            .all()
+        )
+
+        for r in rows:
+            display_name = r.name
+            if (not display_name) and (r.firstname or r.surname):
+                display_name = f"{r.firstname or ''} {r.surname or ''}".strip()
+
+            pu_meldungen_by_order[r.observation_request_id].append({
+                "user_id": r.poweruser_user_id,
+                "name": display_name or f"User {r.poweruser_user_id}",
+                "availability": r.availability,
+            })
+
+    return render_template("approver.html", orders=all_orders, pu_meldungen_by_order=pu_meldungen_by_order)
 
 # -------------------------------------------------------------
 #

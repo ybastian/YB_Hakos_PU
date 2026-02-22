@@ -541,6 +541,28 @@ def pu_accept(order_id):
 
 
 # --------------------------------------------------------------------
+# Approver weißt einen Poweruser zu
+# --------------------------------------------------------------------
+@orders.route("/approver/assign_poweruser", methods=["POST"])
+@login_required
+def approver_assign_poweruser():
+    
+    order_id = request.form.get("order_id", type=int)
+    poweruser_user_id = request.form.get("poweruser_user_id", type=int)
+
+    if not order_id or not poweruser_user_id:
+        return f'<span id="pu-assign-feedback-{order_id or 0}" class="text-danger ms-2">Bitte Poweruser wählen</span>', 400
+
+    order = ObservationRequest.query.get_or_404(order_id)
+
+    order.request_poweruser_id = poweruser_user_id
+    order.status = ORDER_STATUS_PU_ASSIGNED
+
+    db.session.commit()
+
+    return f'<span id="pu-assign-feedback-{order_id}" class="text-success ms-2">✓ Poweruser zugewiesen</span>'
+
+# --------------------------------------------------------------------
 # Der Kontrolleur (Approver) weist Antrag zurück
 # --------------------------------------------------------------------
 @orders.route("/approver/<int:order_id>/reject", methods=["POST"])
