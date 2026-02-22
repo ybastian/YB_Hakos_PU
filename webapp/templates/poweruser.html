@@ -14,6 +14,7 @@
 
 {% if orders|length > 0 %}
 
+<div id="pu-message"></div>
 <table class="table table-bordered table-striped table-hover">
     <thead>
         <tr>
@@ -32,27 +33,38 @@
     {% for order in orders %}
         <tr>
             <td>
-                <a href="{{ url_for('orders.show_order_positions', order_id=order.id) }}" class="btn btn-sm btn-secondary" title="Show">
-                    <i class="bi bi-eye"></i>
-                </a>
-                {% if order.status != CONSTANTS.ORDER_STATUS_CREATED %}
-                    <a href="{{ url_for('orders.edit_order_pos', order_id=order.id) }}" class="btn btn-sm btn-primary" title="Edit">
-                        <i class="bi bi-pencil"></i>
-                    </a>
-                    <form method="post" action="{{ url_for('orders.pu_accept', order_id=order.id) }}" style="display:inline;" onsubmit="return confirm('Du willst diesen Antrag als Poweruser betreuen?');">
-                      <button type="submit" class="btn btn-sm btn-success" title="Mir zuordnen">
-                      <i class="bi bi-hand-thumbs-up-fill"></i>
-                      </button>
-                    </form>
-                {% endif %}
+  <a href="{{ url_for('orders.show_order_positions', order_id=order.id) }}"
+     class="btn btn-sm btn-secondary" title="Details anzeigen">
+    <i class="bi bi-eye"></i>
+  </a>
 
-            </td>
+<span id="pu-feedback-{{ order.id }}"></span>
+
+<input type="hidden" id="action-{{ order.id }}" name="action" value="pu_meldung">
+<input type="hidden" id="order-{{ order.id }}" name="order_id" value="{{ order.id }}">
+
+<select id="availability-{{ order.id }}" name="availability"
+        class="form-select form-select-sm d-inline w-auto">
+  <option value="1" {% if order.my_pu_meldung_availability == 1 %}selected{% endif %}>Möglich</option>
+  <option value="2" {% if order.my_pu_meldung_availability == 2 %}selected{% endif %}>Vielleicht</option>
+  <option value="3" {% if order.my_pu_meldung_availability == 3 %}selected{% endif %}>Nicht möglich</option>
+</select>
+
+<button type="button" class="btn btn-sm btn-outline-primary"
+        hx-post="{{ url_for('main.poweruser') }}"
+        hx-include="#action-{{ order.id }},#order-{{ order.id }},#availability-{{ order.id }}{% if csrf_token is defined %},#csrf_token{% endif %}"
+        hx-target="#pu-feedback-{{ order.id }}"
+        hx-swap="outerHTML">
+  <i class="bi bi-save"></i>
+</button>
+</td>
+
             <td>{{ order.status_label }}</td>
             <td>{{ order.request_date.strftime('%d.%m.%Y') }}</td>
             <td>{{ order.name }}</td>
             <td>{{ order.observatory_name }}</td>
-            <!-- <td>{{ order.request_purpose }}</td> -->
-            <td>{{ order.poweruser_name if order.poweruser_name else '-' }}
+            <td>{{ order.request_purpose }}</td>
+            <td>{{ order.poweruser_name if order.poweruser_name else '-' }}</td>
             <td>{{ order.request_type }}</td>
             <td>{{ order.remark }}</td>
         </tr>
@@ -62,10 +74,9 @@
 {% endif %}
 <br>
 
-<form method="post" action="{{ url_for('main.poweruser') }}">
-
 {% endif %}
-<a class="btn btn-warning" style="background-color: #007bff; color: white;" href="{{ url_for('main.home') }}" >Zur Startseite</a>
-</form>
+
+<a class="btn btn-warning" style="background-color: #007bff; color: white;"
+   href="{{ url_for('main.home') }}">Zur Startseite</a>
 
 {% endblock %}

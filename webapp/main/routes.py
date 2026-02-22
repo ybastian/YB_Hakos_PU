@@ -4,11 +4,11 @@ from flask import render_template, request, url_for
 from flask_login import login_required
 from flask_login import current_user
 from webapp.main import main
-from webapp.model.db import Post, SystemParameters, ObservationRequest
+from webapp.model.db import db, Post, SystemParameters, ObservationRequest, PoweruserMeldung
 from webapp.orders.constants import USER_ROLE_ADMIN, ORDER_STATUS_LABELS, ORDER_STATUS_WAITING, \
     ORDER_STATUS_PU_REJECTED, ORDER_STATUS_PU_ACCEPTED
 from webapp.orders.constants import ORDER_STATUS_APPROVED, ORDER_STATUS_PU_ASSIGNED
-
+from sqlalchemy.exc import IntegrityError
 
 @main.route("/")
 @main.route("/home")
@@ -20,9 +20,47 @@ def home():
 # -------------------------------------------------------------
 #
 # -------------------------------------------------------------
-@main.route("/poweruser", methods=['GET'])
+@main.route("/poweruser", methods=['GET','POST'])
 @login_required
 def poweruser():
+
+    if request.method == "POST":
+        action = request.form.get("action")
+        if action != "pu_meldung":
+            return '<span id="pu-feedback-0" class="text-danger ms-2">Unbekannte Aktion</span>', 400
+
+        order_id = request.form.get("order_id", type=int)
+        availability = request.form.get("availability", type=int)
+
+        if not order_id or availability not in (1, 2, 3):
+            return f'<span id="pu-feedback-{order_id or 0}" class="text-danger ms-2">Ungültige Eingabe</span>', 400
+
+        meldung = PoweruserMeldung.query.filter_by(
+            observation_request_id=order_id,
+            poweruser_user_id=current_user.id
+        ).first()
+
+        if meldung:
+            meldung.availability = availability
+        else:
+            meldung = PoweruserMeldung(
+                observation_request_id=order_id,
+                poweruser_user_id=current_user.id,
+                availability=availability
+            )
+            db.session.add(meldung)
+
+        try:
+            db.session.commit()
+        except IntegrityError as e:
+            db.session.rollback()
+            return f'<span id="pu-feedback-{order_id}" class="text-danger ms-2">✗ Fehler beim Speichern</span>', 400
+
+        return f'<span id="pu-feedback-{order_id}" class="text-success ms-2">✓ Gespeichert (DB)</span>'
+
+
+
+
 
     all_orders = (
         ObservationRequest.query
@@ -31,6 +69,7 @@ def poweruser():
     )
     for order in all_orders: order.status_label = ORDER_STATUS_LABELS.get(order.status, "??")
     return render_template('poweruser.html', title='Poweruser', orders=all_orders)
+
 
 # -------------------------------------------------------------
 #
