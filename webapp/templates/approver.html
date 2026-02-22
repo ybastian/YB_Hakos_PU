@@ -17,6 +17,7 @@
     <thead>
         <tr>
             <th>Aktion</th>
+            <th>Poweruserauswahl</th>
             <th>Status</th>
             <th>Datum</th>
             <th>Beteiligte</th>
@@ -37,8 +38,9 @@
                 {% if order.status != CONSTANTS.ORDER_STATUS_CREATED %}
                     <a href="{{ url_for('orders.edit_order_pos', order_id=order.id) }}" class="btn btn-sm btn-primary" title="Edit">
                         <i class="bi bi-pencil"></i>
-                    </a>
-                    <form method="post" action="{{ url_for('orders.approve_order', order_id=order.id) }}" style="display:inline;" onsubmit="return confirm('Du willst diesen genehmigen?');">
+                    </a>                    
+                {% endif %}
+                 <form method="post" action="{{ url_for('orders.approve_order', order_id=order.id) }}" style="display:inline;" onsubmit="return confirm('Du willst diesen genehmigen?');">
                       <button type="submit" class="btn btn-sm btn-success" title="Genehmingen">
                       <i class="bi bi-hand-thumbs-up-fill"></i>
                       </button>
@@ -47,16 +49,55 @@
                       <button type="submit" class="btn btn-sm btn-danger" title="Ablehnen">
                       <i class="bi bi-hand-thumbs-down"></i>
                       </button>
-                    </form>
-                {% endif %}
-
-
+                    </form>                   
             </td>
-            <td>{{ order.status_label }}</td>
+            <td>
+  {% set meldungen = pu_meldungen_by_order.get(order.id, []) %}
+
+  {% if meldungen|length == 0 %}
+    <span class="text-muted">Keine Rückmeldungen</span>
+  {% else %}
+    <div class="d-flex flex-column gap-1">
+      {% for m in meldungen %}
+        <label class="d-flex align-items-center gap-2">
+          <input type="radio"
+                 name="selected_poweruser_{{ order.id }}"
+                 value="{{ m.user_id }}"
+                 class="form-check-input">
+
+          <span>{{ m.name }}</span>
+
+          {% if m.availability == 1 %}
+            <span class="badge bg-success">Möglich</span>
+          {% elif m.availability == 2 %}
+            <span class="badge bg-warning text-dark">Vielleicht</span>
+          {% elif m.availability == 3 %}
+            <span class="badge bg-danger">Nein</span>
+          {% else %}
+            <span class="badge bg-secondary">?</span>
+          {% endif %}
+        </label>
+      {% endfor %}
+
+      <button type="button"
+              class="btn btn-sm btn-outline-primary mt-1"
+              hx-post="{{ url_for('orders.approver_assign_poweruser') }}"
+              hx-include="[name='selected_poweruser_{{ order.id }}']:checked"
+              hx-vals='{"order_id":"{{ order.id }}"}'
+              hx-target="#pu-assign-feedback-{{ order.id }}"
+              hx-swap="outerHTML">
+        Poweruser zuweisen
+      </button>
+
+      <span id="pu-assign-feedback-{{ order.id }}"></span>
+    </div>
+  {% endif %}
+</td>
+            <td>{{ order.status_label }}</td>            
             <td>{{ order.request_date.strftime('%d.%m.%Y') }}</td>
             <td>{{ order.name }}</td>
             <td>{{ order.observatory_name }}</td>
-            <!-- <td>{{ order.request_purpose }}</td> -->
+            <td>{{ order.request_purpose }}</td>
             <td>{{ order.poweruser_name if order.poweruser_name else '-' }}
             <td>{{ order.request_type }}</td>
             <td>{{ order.remark }}</td>
