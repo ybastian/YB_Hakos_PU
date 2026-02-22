@@ -388,7 +388,7 @@ class ObservationRequestPosition(db.Model):
 
 # Aus Altdaten extrahiert
 class ObservationHistory(db.Model):
-    __tablename__ = 'ObservationHistory'
+    __tablename__ = 'observation_history'
     __table_args__ = {'sqlite_autoincrement': True}
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
     Datum: Mapped[str] = mapped_column(db.String(25), nullable=False)

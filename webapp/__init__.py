@@ -5,7 +5,8 @@ from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
-import jinja_partials
+from sqlalchemy import MetaData
+#import jinja_partials
 
 from webapp.config import Config
 from webapp.admin.utils import init_admin
@@ -20,7 +21,14 @@ login_manager.session_protection = "strong"
 mail = Mail()
 admin = Admin()
 
-db = SQLAlchemy(add_models_to_shell=True)
+db = SQLAlchemy(add_models_to_shell=True,
+                metadata=MetaData(naming_convention={
+                    "ix": 'ix_%(column_0_label)s',
+                    "uq": "uq_%(table_name)s_%(column_0_name)s",
+                    "ck": "ck_%(table_name)s_%(constraint_name)s",
+                    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+                    "pk": "pk_%(table_name)s"
+                }))
 
 from webapp.users.setup_users import setup_users
 

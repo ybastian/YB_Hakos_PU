@@ -42,15 +42,15 @@ def setup_users():
                     db.session.add(admin_user)
                     db.session.commit()
 
-                # add admin role, if not present, and assign to admin group
+                # add admin role, if not present
                 admin_role = Role.query.filter_by(name="admin").first()
                 if not admin_role:
                     admin_role = Role(name="admin")
-                    admin_group.roles.append(admin_role)
                     db.session.add(admin_role)
-                    db.session.add(admin_group)
                     db.session.commit()
-                elif admin_role not in admin_group.roles:
+
+                # assiggn admin role to admin group if not already assigned
+                if admin_role not in admin_group.roles:
                     admin_group.roles.append(admin_role)
                     db.session.add(admin_group)
                     db.session.commit()
