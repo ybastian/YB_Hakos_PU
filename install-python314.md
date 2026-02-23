@@ -32,7 +32,7 @@ $ pyenv local 3.14
 $ python --version
 Python 3.14.3
 $ python -m venv venv
-$ source .venv/bin/activate
+$ source venv/bin/activate
 $ pip install --upgrade pip
 $ pip install -r requirements.txt
 ```
