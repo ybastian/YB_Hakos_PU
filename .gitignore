@@ -16,3 +16,7 @@ venv/
 .DS_Store
 /copy_DB_content.sql
 extern/testformular/
+
+# local dev
+.venv/
+.python-version
