@@ -564,18 +564,9 @@ def approver_assign_poweruser():
     db.session.commit()
 
     return f"""
+    <span id="pu-assign-feedback-{order_id}" class="text-success ms-2">✓ Poweruser zugewiesen</span>
+
     <button id="pu-assign-btn-{order_id}"
-            type="button"
-            class="btn btn-sm btn-success mt-1"
-            disabled>
-      ✓ Zugewiesen
-    </button>
-    """
-
- return f"""
-<span id="pu-assign-feedback-{order_id}" class="text-success ms-2">✓ Poweruser zugewiesen</span>
-
-<button id="pu-assign-btn-{order_id}"
         hx-swap-oob="true"
         type="button"
         class="btn btn-sm btn-success mt-1"
