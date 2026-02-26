@@ -9,7 +9,9 @@ from flask import (
 )
 from flask_login import current_user, login_required
 from flask import current_app
+from flask_mail import Message
 from datetime import date, datetime
+from celery import shared_task
 
 from webapp import db
 from webapp.model.db import User, ObservationRequest, ObservationRequestPosition
@@ -573,6 +575,9 @@ def approver_assign_poweruser():
     if not pu_name:
         pu_name = f"User {poweruser_user_id}"
 
+    # notify requester and poweruser
+    send_approve_email.delay(order_id, current_user.id)
+
     return f"""
 
 <span id="pu-assign-slot-{order_id}">
@@ -608,6 +613,8 @@ def reject_order(order_id):
         )
     else:
         flash("Antrag abgelehnt", "success")
+        # notify requester
+        send_reject_email.delay(order_id, current_user.id)
     return redirect(url_for("main.approver"))
 
 
@@ -651,6 +658,51 @@ def approver_assign_poweruser_form():
       </button>
     </span>
     """
+
+@shared_task
+def send_approve_email(order_id,approver_id):
+    antrag = ObservationRequest.query.get(order_id)
+    user = User.query.get(antrag.user_id)
+    approver = User.query.get(approver_id)
+    pu = User.query.get(antrag.request_poweruser_id)
+    msg = Message('Antrag genehmigt',
+                  sender=current_app.config['MAIL_REPLYTO'],
+                  recipients=[user.email, approver.email, pu.email])
+    msg.body = f'''Hallo {user.firstname} {user.surname},
+        
+    Glückwunsch! Dein <a href="{url_for('orders.show_order_positions', order_id=order_id)}">Antrag mit der Nummer #{order_id}</a> wurde genehmigt.
+    Deine Beobachtung wird betreut durch: PU {pu.firstname} {pu.surname}
+    
+    Wie geht es nun weiter?
+    - Bereite dich auf die Beobachtung vor, indem du den PU frühzeitig kontaktierst
+    - Halte alle Informationen bereit
+    - Informiere dich über das Wetter vor Ort
+    - Trage die erhaltenen Daten hier ein: https://
+    
+    Gruss, {approver.firstname} {approver.surname}
+'''
+    mail.send(msg)
+
+
+@shared_task
+def send_reject_email(order_id, approver_id):
+    antrag = ObservationRequest.query.get(order_id)
+    user = User.query.get(antrag.user_id)
+    approver = User.query.get(approver_id)
+    msg = Message('Antrag abgelehnt',
+                  sender=current_app.config['MAIL_REPLYTO'],
+                  recipients=[user.email, approver.email])
+    msg.body = f'''Hallo {user.firstname} {user.surname},
+
+    Oh nein! Dein <a href="{url_for('orders.show_order_positions', order_id=order_id)}">Antrag mit der Nummer #{order_id}</a> wurde abgelehnt.
+
+    Wie geht es nun weiter?
+    - Versuche einen neuen Antrag
+
+    Gruss, {approver.firstname} {approver.surname}
+'''
+    mail.send(msg)
+
 
 # --------------------------------------------------------------------
 # Belegungskalender anzeigen
