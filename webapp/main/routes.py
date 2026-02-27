@@ -34,30 +34,33 @@ def poweruser():
         availability = request.form.get("availability", type=int)
 
         if not order_id or availability not in (1, 2, 3):
-            return f'<span id="pu-feedback-{order_id or 0}" class="text-danger ms-2">Ungültige Eingabe</span>', 400
+            return (
+                f'<span id="pu-feedback-{order_id or 0}" class="text-danger ms-2">Ungültige Eingabe</span>',
+                400,
+            )
 
         meldung = PoweruserMeldung.query.filter_by(
             observation_request_id=order_id,
             poweruser_user_id=current_user.id
         ).first()
 
-        if meldung:
-            meldung.availability = availability
-        else:
+        if meldung is None:
             meldung = PoweruserMeldung(
                 observation_request_id=order_id,
                 poweruser_user_id=current_user.id,
                 availability=availability
             )
             db.session.add(meldung)
+        else:
+            meldung.availability = availability
 
-        try:
-            db.session.commit()
-        except IntegrityError as e:
-            db.session.rollback()
-            return f'<span id="pu-feedback-{order_id}" class="text-danger ms-2">✗ Fehler beim Speichern</span>', 400
+        db.session.commit()
 
-        return f'<span id="pu-feedback-{order_id}" class="text-success ms-2">✓ Gespeichert (DB)</span>'
+        return (
+            f'<span id="pu-feedback-{order_id}">'
+            f'<span class="text-success ms-2">In Datenbank gespeichert</span>'
+            f'</span>'
+        )
 
     all_orders = (
         ObservationRequest.query
