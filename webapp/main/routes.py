@@ -62,15 +62,29 @@ def poweruser():
             f'</span>'
         )
 
-    all_orders = (
-        ObservationRequest.query
+    all_rows = (
+        db.session.query(ObservationRequest, User)
+        .outerjoin(User, User.id == ObservationRequest.request_poweruser_id)
         .filter(ObservationRequest.status.in_([ORDER_STATUS_APPROVED, ORDER_STATUS_PU_ASSIGNED]))
         .all()
     )
-    for order in all_orders: order.status_label = ORDER_STATUS_LABELS.get(order.status, "??")
-    return render_template('poweruser.html', title='Poweruser', orders=all_orders)
 
+    all_orders = []
+    for order, pu_user in all_rows:
+        order.status_label = ORDER_STATUS_LABELS.get(order.status, "??")
 
+        # Name des vom Approver zugewiesenen Powerusers (falls vorhanden)
+        if pu_user:
+            display = pu_user.name
+            if (not display) and (pu_user.firstname or pu_user.surname):
+                display = f"{pu_user.firstname or ''} {pu_user.surname or ''}".strip()
+            order.assigned_poweruser_display = display or f"User {pu_user.id}"
+        else:
+            order.assigned_poweruser_display = None
+
+        all_orders.append(order)
+
+    return render_template("poweruser.html", title="Poweruser", orders=all_orders)
 # -------------------------------------------------------------
 #
 # -------------------------------------------------------------

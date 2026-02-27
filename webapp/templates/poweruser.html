@@ -63,7 +63,13 @@
 </button>
 </td>
 
-            <td>{{ order.status_label }}</td>
+            <td> {{ order.status_label }}
+  {% if order.assigned_poweruser_display %}
+    <br>
+    <span class="badge bg-info text-dark">
+      {{ order.assigned_poweruser_display }}
+    </span>
+  {% endif %}</td>
             <td>{{ order.request_date.strftime('%d.%m.%Y') }}</td>
             <td>{{ order.name }}</td>
             <td>{{ order.observatory_name }}</td>
