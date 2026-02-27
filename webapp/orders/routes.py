@@ -30,6 +30,7 @@ from .constants import (
     ORDER_STATUS_REJECTED,
     USER_ROLE_ADMIN,
     ORDER_STATUS_APPROVED,
+    ORDER_STATUS_PU_ASSIGNED,
 )
 from .orderservices import (
     copy_order_service,
@@ -563,16 +564,30 @@ def approver_assign_poweruser():
 
     db.session.commit()
 
-    return f"""
-    <span id="pu-assign-feedback-{order_id}" class="text-success ms-2">✓ Poweruser zugewiesen</span>
+    pu_user = User.query.get(poweruser_user_id)
+    pu_name = pu_user.name if pu_user else None
 
-    <button id="pu-assign-btn-{order_id}"
-        hx-swap-oob="true"
-        type="button"
-        class="btn btn-sm btn-success mt-1"
-        disabled>
-  ✓ Zugewiesen
-</button>
+    if pu_user and (not pu_name) and (pu_user.firstname or pu_user.surname):
+        pu_name = f"{pu_user.firstname or ''} {pu_user.surname or ''}".strip()
+
+    if not pu_name:
+        pu_name = f"User {poweruser_user_id}"
+
+    return f"""
+
+<span id="pu-assign-slot-{order_id}">
+  <span class="text-success ms-2">
+    Poweruser zugewiesen: <strong>{pu_name}</strong>
+  </span>
+
+  <button type="button"
+          class="btn btn-sm btn-link ms-2 p-0 align-baseline"
+          hx-get="{url_for('orders.approver_assign_poweruser_form')}?order_id={order_id}"
+          hx-target="#pu-assign-slot-{order_id}"
+          hx-swap="outerHTML">
+    Neu zuweisen?
+  </button>
+</span>
 """
 
 # --------------------------------------------------------------------
@@ -616,6 +631,26 @@ def approve_order(order_id):
         flash("Antrag bestätigt", "success")
     return redirect(url_for("main.approver"))
 
+@orders.route("/approver/assign_poweruser_form", methods=["GET"])
+@login_required
+def approver_assign_poweruser_form():
+    order_id = request.args.get("order_id", type=int)
+    if not order_id:
+        return '<span class="text-danger">Fehlende order_id</span>', 400
+
+    return f"""
+    <span id="pu-assign-slot-{order_id}">
+      <button id="pu-assign-btn-{order_id}"
+              type="button"
+              class="btn btn-sm btn-outline-primary mt-1"
+              hx-post="{url_for('orders.approver_assign_poweruser')}"
+              hx-include="#pu-select-{order_id} input, #order-id-{order_id}"
+              hx-target="#pu-assign-slot-{order_id}"
+              hx-swap="outerHTML">
+        Poweruser zuweisen
+      </button>
+    </span>
+    """
 
 # --------------------------------------------------------------------
 # Belegungskalender anzeigen

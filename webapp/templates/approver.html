@@ -62,7 +62,7 @@
     {% for m in meldungen %}
       <label class="d-flex align-items-center gap-2">
 <input type="radio"
-       name="poweruser_user_id_{{ order.id }}"
+       name="poweruser_user_id"
        value="{{ m.user_id }}"
        class="form-check-input">
 
@@ -80,18 +80,19 @@
       </label>
     {% endfor %}
 
-    <button id="pu-assign-btn-{{ order.id }}"
-        type="button"
-        class="btn btn-sm btn-outline-primary mt-1"
-        hx-post="{{ url_for('orders.approver_assign_poweruser') }}"
-        hx-include="closest tr"
-        hx-vals='{"order_id":"{{ order.id }}"}'
-        hx-target="#pu-assign-feedback-{{ order.id }}"
-        hx-swap="outerHTML">
-  Poweruser zuweisen
-</button>
+<span id="pu-assign-slot-{{ order.id }}">
+  <button id="pu-assign-btn-{{ order.id }}"
+          type="button"
+          class="btn btn-sm btn-outline-primary mt-1"
+          hx-post="{{ url_for('orders.approver_assign_poweruser') }}"
+          hx-include="#pu-select-{{ order.id }} input, #order-id-{{ order.id }}"
+          hx-target="#pu-assign-slot-{{ order.id }}"
+          hx-swap="outerHTML">
+    Poweruser zuweisen
+  </button>
+</span>
 
-<span id="pu-assign-feedback-{{ order.id }}"></span>
+<input type="hidden" id="order-id-{{ order.id }}" name="order_id" value="{{ order.id }}">
 
   </div>
 {% endif %}
