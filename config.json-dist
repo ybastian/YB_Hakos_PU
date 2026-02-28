@@ -10,7 +10,7 @@
 	"MAIL_REPLYTO": "MAIL_USER",
 	"ADMIN_USER": "admin",
 	"ADMIN_EMAIL": "admin@example.org",
-	"ADMIN_PASSWORD": "changeme"
+	"ADMIN_PASSWORD": "changeme",
 	"MAIL_DEBUG": false
 }
 
