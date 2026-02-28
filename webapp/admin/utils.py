@@ -107,8 +107,8 @@ class SiteModelView(GenericModelView):
     column_list: tuple[str, ...] = ('name', 'longitude', 'lattitude', 'observatories')
     column_labels = dict(
          name='Ort',
-         longitude='Breitengrad',
-         lattitude='Längengrad',
+         longitude='Längengrad',
+         lattitude='Breitengrad',
          observatories='Observatorien'
     )
     column_formatters = dict(
