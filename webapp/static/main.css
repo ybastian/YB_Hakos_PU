@@ -6,6 +6,20 @@ body {
   background-color: #5f788a;
 }
 
+html[data-bs-theme="light"] .dropdown-menu {
+    background-color: #6c8796;
+    border: 1px solid #5c7380;
+}
+
+html[data-bs-theme="light"] .dropdown-menu .dropdown-item {
+    color: #ffffff;
+}
+
+html[data-bs-theme="light"] .dropdown-menu .dropdown-item:hover {
+    background-color: #5c7380;
+    color: #ffffff;
+}
+
 .site-header .navbar-nav .nav-link {
   color: #cbd5db;
 }
