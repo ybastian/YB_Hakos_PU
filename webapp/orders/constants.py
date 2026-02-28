@@ -46,7 +46,7 @@ USER_ROLE_CHOICES = [
     (USER_ROLE_APPROVER, 'Approver'),
     (USER_ROLE_POWERUSER, 'Poweruser'),
     (USER_ROLE_USER, 'User'),
-    (USER_ROLE_GUEST, 'Gast')
+    (USER_ROLE_GUEST, 'Guest')
 ]
 
 USER_ROLE_LABELS = dict(USER_ROLE_CHOICES)
