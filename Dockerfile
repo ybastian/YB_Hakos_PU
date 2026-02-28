@@ -13,7 +13,7 @@ COPY requirements-prod.txt ./requirements.txt
 RUN pip3 install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 COPY webapp webapp/
 COPY migrations migrations/
-COPY prod.py app.py init-db.py docker-startup.sh ./
+COPY prod.py app.py init-db.py docker-startup.sh make_celery.py ./
 
 EXPOSE 5000/tcp
 ENTRYPOINT [ "/bin/sh", "-c" ]

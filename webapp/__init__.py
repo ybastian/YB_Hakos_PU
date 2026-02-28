@@ -61,8 +61,8 @@ def create_app(config_class=Config):
     )
     app.config.from_mapping(
         CELERY=dict(
-            broker_url="redis://localhost:6379",
-            result_backend="redis://localhost:6379",
+            broker_url=app.config['CELERY_BROKER_URL'],
+            result_backend=app.config['CELERY_RESULT_BACKEND'],
             task_ignore_result=True, # default is to ignore result, i.e. when sending emails
         ),
     )
