@@ -1,6 +1,8 @@
 # syntax=docker/dockerfile:1
 FROM python:3.14-alpine
 
+RUN addgroup -S flask && adduser -S flask -G flask -h /vds
+
 RUN apk update \
     && apk upgrade \
     && apk add build-base libpq libpq-dev
@@ -17,4 +19,5 @@ COPY prod.py app.py init-db.py docker-startup.sh make_celery.py ./
 
 EXPOSE 5000/tcp
 ENTRYPOINT [ "/bin/sh", "-c" ]
+USER flask
 CMD [ "./docker-startup.sh" ]

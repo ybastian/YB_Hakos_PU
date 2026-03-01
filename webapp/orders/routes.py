@@ -661,29 +661,60 @@ def approver_assign_poweruser_form():
     </span>
     """
 
+"""
+greeting_string(user): creates a greeting string for given user. Uses only firstname, surname if available
+or falls back to login name
+"""
+def greeting_string(user):
+    # set up user greeting
+    if user.firstname and user.surname:
+        user_greeting = f"{user.firstname} {user.surname}"
+    elif user.firstname:
+        user_greeting = user.firstname
+    elif user.surname:
+        user_greeting = user.surname
+    else:
+        user_greeting = user.name
+    return user_greeting
+
 @shared_task
 def send_approve_email(order_id,approver_id,order_url):
     antrag = ObservationRequest.query.get(order_id)
     user = User.query.get(antrag.user_id)
     approver = User.query.get(approver_id)
     pu = User.query.get(antrag.request_poweruser_id)
+
+    user_greeting = greeting_string(user)
+    approver_greeting = greeting_string(approver)
+    pu_greeting = greeting_string(pu)
+
     msg = Message('Antrag genehmigt',
                   sender=current_app.config['MAIL_REPLYTO'],
                   recipients=[user.email, approver.email, pu.email])
-    msg.body = f'''Hallo {user.firstname} {user.surname},
+    msg.body = f'''
+    Hallo {user_greeting},
         
-    Glückwunsch! Dein <a href="{order_url}">Antrag mit der Nummer #{order_id}</a> wurde genehmigt.
-    Deine Beobachtung wird betreut durch: PU {pu.firstname} {pu.surname}
+    Glückwunsch! Dein Antrag mit der Nummer #{order_id} wurde genehmigt.
+    Deine Beobachtung wird betreut durch: PU {pu_greeting}
+    Link zum Antrag: {order_url}
     
     Wie geht es nun weiter?
     - Bereite dich auf die Beobachtung vor, indem du den PU frühzeitig kontaktierst
     - Halte alle Informationen bereit
     - Informiere dich über das Wetter vor Ort
-    - Trage die erhaltenen Daten hier ein: https://
+    - Trage die erhaltenen Daten hier ein: https://nextcloud.sternfreunde.de/index.php/f/104569
     
-    Gruss, {approver.firstname} {approver.surname}
+    Gruss, {approver_greeting}
 '''
-    mail.send(msg)
+    try:
+        mail.send(msg)
+    except SMTPAuthenticationError as exc:
+        if exc.smtp_code == 454:
+            print(e)
+            raise self.retry(exc=exc)
+        else:
+            raise exc
+
 
 
 @shared_task
@@ -691,19 +722,33 @@ def send_reject_email(order_id, approver_id):
     antrag = ObservationRequest.query.get(order_id)
     user = User.query.get(antrag.user_id)
     approver = User.query.get(approver_id)
+
+    user_greeting = greeting_string(user)
+    approver_greeting = greeting_string(approver)
+
     msg = Message('Antrag abgelehnt',
                   sender=current_app.config['MAIL_REPLYTO'],
                   recipients=[user.email, approver.email])
-    msg.body = f'''Hallo {user.firstname} {user.surname},
+    msg.body = f'''
+    Hallo {user_greeting},
 
-    Oh nein! Dein <a href="{order_url}">Antrag mit der Nummer #{order_id}</a> wurde abgelehnt.
+    Oh nein! Dein Antrag mit der Nummer #{order_id} wurde abgelehnt.
+    Link zum Antrag: {order_url}
 
     Wie geht es nun weiter?
     - Versuche einen neuen Antrag
 
-    Gruss, {approver.firstname} {approver.surname}
+    Gruss, {approver_greeting}
 '''
-    mail.send(msg)
+    try:
+        mail.send(msg)
+    except SMTPAuthenticationError as exc:
+        if exc.smtp_code == 454:
+            print(e)
+            raise self.retry(exc=exc)
+        else:
+            raise exc
+
 
 
 # --------------------------------------------------------------------
