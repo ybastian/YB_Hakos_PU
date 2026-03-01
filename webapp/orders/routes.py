@@ -718,7 +718,7 @@ def send_approve_email(order_id,approver_id,order_url):
 
 
 @shared_task
-def send_reject_email(order_id, approver_id):
+def send_reject_email(order_id, approver_id,order_url):
     antrag = ObservationRequest.query.get(order_id)
     user = User.query.get(antrag.user_id)
     approver = User.query.get(approver_id)
