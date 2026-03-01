@@ -9,9 +9,11 @@ from flask import (
 )
 from flask_login import current_user, login_required
 from flask import current_app
+from flask_mail import Message
 from datetime import date, datetime
+from celery import shared_task
 
-from webapp import db
+from webapp import db, mail
 from webapp.model.db import User, ObservationRequest, ObservationRequestPosition
 
 from . import orders  # Blueprint-Objekt
@@ -573,6 +575,10 @@ def approver_assign_poweruser():
     if not pu_name:
         pu_name = f"User {poweruser_user_id}"
 
+    # notify requester and poweruser
+    order_url = url_for('orders.show_order_positions', order_id=order_id)
+    send_approve_email.delay(order_id, current_user.id, order_url)
+
     return f"""
 
 <span id="pu-assign-slot-{order_id}">
@@ -608,6 +614,9 @@ def reject_order(order_id):
         )
     else:
         flash("Antrag abgelehnt", "success")
+        # notify requester
+        order_url = url_for('orders.show_order_positions', order_id=order_id)
+        send_reject_email.delay(order_id, current_user.id, order_url)
     return redirect(url_for("main.approver"))
 
 
@@ -651,6 +660,96 @@ def approver_assign_poweruser_form():
       </button>
     </span>
     """
+
+"""
+greeting_string(user): creates a greeting string for given user. Uses only firstname, surname if available
+or falls back to login name
+"""
+def greeting_string(user):
+    # set up user greeting
+    if user.firstname and user.surname:
+        user_greeting = f"{user.firstname} {user.surname}"
+    elif user.firstname:
+        user_greeting = user.firstname
+    elif user.surname:
+        user_greeting = user.surname
+    else:
+        user_greeting = user.name
+    return user_greeting
+
+@shared_task
+def send_approve_email(order_id,approver_id,order_url):
+    antrag = ObservationRequest.query.get(order_id)
+    user = User.query.get(antrag.user_id)
+    approver = User.query.get(approver_id)
+    pu = User.query.get(antrag.request_poweruser_id)
+
+    user_greeting = greeting_string(user)
+    approver_greeting = greeting_string(approver)
+    pu_greeting = greeting_string(pu)
+
+    msg = Message('Antrag genehmigt',
+                  sender=current_app.config['MAIL_REPLYTO'],
+                  recipients=[user.email, approver.email, pu.email])
+    msg.body = f'''
+    Hallo {user_greeting},
+        
+    Glückwunsch! Dein Antrag mit der Nummer #{order_id} wurde genehmigt.
+    Deine Beobachtung wird betreut durch: PU {pu_greeting}
+    Link zum Antrag: {order_url}
+    
+    Wie geht es nun weiter?
+    - Bereite dich auf die Beobachtung vor, indem du den PU frühzeitig kontaktierst
+    - Halte alle Informationen bereit
+    - Informiere dich über das Wetter vor Ort
+    - Trage die erhaltenen Daten hier ein: https://nextcloud.sternfreunde.de/index.php/f/104569
+    
+    Gruss, {approver_greeting}
+'''
+    try:
+        mail.send(msg)
+    except SMTPAuthenticationError as exc:
+        if exc.smtp_code == 454:
+            print(e)
+            raise self.retry(exc=exc)
+        else:
+            raise exc
+
+
+
+@shared_task
+def send_reject_email(order_id, approver_id,order_url):
+    antrag = ObservationRequest.query.get(order_id)
+    user = User.query.get(antrag.user_id)
+    approver = User.query.get(approver_id)
+
+    user_greeting = greeting_string(user)
+    approver_greeting = greeting_string(approver)
+
+    msg = Message('Antrag abgelehnt',
+                  sender=current_app.config['MAIL_REPLYTO'],
+                  recipients=[user.email, approver.email])
+    msg.body = f'''
+    Hallo {user_greeting},
+
+    Oh nein! Dein Antrag mit der Nummer #{order_id} wurde abgelehnt.
+    Link zum Antrag: {order_url}
+
+    Wie geht es nun weiter?
+    - Versuche einen neuen Antrag
+
+    Gruss, {approver_greeting}
+'''
+    try:
+        mail.send(msg)
+    except SMTPAuthenticationError as exc:
+        if exc.smtp_code == 454:
+            print(e)
+            raise self.retry(exc=exc)
+        else:
+            raise exc
+
+
 
 # --------------------------------------------------------------------
 # Belegungskalender anzeigen

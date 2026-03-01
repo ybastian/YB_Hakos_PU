@@ -17,3 +17,5 @@ class Config:
     ADMIN_EMAIL = config.get('ADMIN_EMAIL')
     ADMIN_PASSWORD = config.get('ADMIN_PASSWORD')
     MAIL_DEBUG = config.get('MAIL_DEBUG')
+    CELERY_BROKER_URL = config.get('CELERY_BROKER_URL')
+    CELERY_RESULT_BACKEND = config.get('CELERY_RESULT_BACKEND')

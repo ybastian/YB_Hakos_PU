@@ -246,7 +246,40 @@ Weitere technische Informationen zur Migration findet man [in der Flask Migrate 
 
 Wichtig ist, dass nicht mehrere Anpassung gleichzeitig passieren, deshalb sollten alle Änderungen **vorher** mit Peter abgesprochen werden.
 
-# Testing
+## Testing (Starten der Applikation)
+
+Um die Applikation zu starten, werden mehrere Prozesse benötigt.
+
+1. Redis Server im Hintergrund starten
+
+Der Redis Service wird für die Job Queues (Celery) benötigt. Man kann entweder
+Redis installieren oder Redis im Hintergrund mit Docker starten:
+```
+$ docker run --name redis -d -p 6379:6379 redis
+```
+
+2. Die Celery Job Queue starten
+
+In einem Python Fenster startet man die Celery Job Queue mit:
+```
+(venv) $ celery -A make_celery worker -l info
+```
+
+Dadurch wird der code in `make_celery.py` ausgeführt.
+
+3. Flask Server starten
+
+Der Webserver wird gestartet mit
+
+```
+(venv) $ flask run --debugger
+Python Version: 3.14.3
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+```
+Die Website ist nun erreichbar unter http://127.0.0.1:5000
 
 ## Doctest
 

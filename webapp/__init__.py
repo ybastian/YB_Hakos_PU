@@ -7,7 +7,7 @@ from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
 #import jinja_partials
-
+from celery import Celery, Task
 from webapp.config import Config
 from webapp.admin.utils import init_admin
 from webapp.orders import constants
@@ -32,6 +32,25 @@ db = SQLAlchemy(add_models_to_shell=True,
 
 from webapp.users.setup_users import setup_users
 
+
+"""
+Create the background task processor "Celery"
+"""
+def celery_init_app(app: Flask) -> Celery:
+    class FlaskTask(Task):
+        def __call__(self, *args: object, **kwargs: object) -> object:
+            with app.app_context():
+                return self.run(*args, **kwargs)
+
+    celery_app = Celery(app.name, task_cls=FlaskTask)
+    celery_app.config_from_object(app.config["CELERY"])
+    celery_app.set_default() # allow using @shared_task decorator
+    app.extensions["celery"] = celery_app
+    return celery_app
+
+"""
+Create the Flask application
+"""
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
@@ -40,6 +59,15 @@ def create_app(config_class=Config):
         SESSION_COOKIE_HTTPONLY=True,
         SESSION_COOKIE_SAMESITE='Lax',
     )
+    app.config.from_mapping(
+        CELERY=dict(
+            broker_url=app.config['CELERY_BROKER_URL'],
+            result_backend=app.config['CELERY_RESULT_BACKEND'],
+            task_ignore_result=True, # default is to ignore result, i.e. when sending emails
+        ),
+    )
+    app.config.from_prefixed_env()
+    celery_init_app(app)
 
     @app.context_processor
     def inject_constants():
