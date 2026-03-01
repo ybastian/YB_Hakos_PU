@@ -6,17 +6,18 @@ body {
   background-color: #5f788a;
 }
 
-html[data-bs-theme="light"] .dropdown-menu {
-    background-color: #6c8796;
-    border: 1px solid #5c7380;
+.dropdown-menu {
+    background-color: #5f788a;
+    border: 1px solid #4e6573;
 }
 
-html[data-bs-theme="light"] .dropdown-menu .dropdown-item {
+.dropdown-menu .dropdown-item {
     color: #ffffff;
 }
 
-html[data-bs-theme="light"] .dropdown-menu .dropdown-item:hover {
-    background-color: #5c7380;
+.dropdown-menu .dropdown-item:hover,
+.dropdown-menu .dropdown-item:focus {
+    background-color: #4e6573;
     color: #ffffff;
 }
 
@@ -29,6 +30,26 @@ html[data-bs-theme="light"] .dropdown-menu .dropdown-item:hover {
 }
 
 .site-header .navbar-nav .nav-link.active {
+  font-weight: 500;
+}
+
+site-header .navbar-nav .nav-link,
+.site-header .navbar-nav .nav-link:visited,
+.site-header .navbar-nav .dropdown-toggle {
+  color: #cbd5db !important;
+}
+
+.site-header .navbar-nav .nav-link:hover,
+.site-header .navbar-nav .dropdown-toggle:hover,
+.site-header .navbar-nav .nav-link:focus,
+.site-header .navbar-nav .dropdown-toggle:focus {
+  color: #ffffff !important;
+}
+
+/* Optional: aktiver Menüpunkt */
+.site-header .navbar-nav .nav-link.active,
+.site-header .navbar-nav .dropdown-toggle.show {
+  color: #ffffff !important;
   font-weight: 500;
 }
 
