@@ -4,7 +4,7 @@ from webapp.model.db import Catalogue
 from sqlalchemy import func
 import re
 from webapp import db
-from .constants import ORDER_STATUS_CREATED, ORDER_STATUS_APPROVED, ORDER_STATUS_WAITING, ORDER_STATUS_PU_ACCEPTED
+from .constants import ORDER_STATUS_CREATED, ORDER_STATUS_APPROVED, ORDER_STATUS_WAITING, ORDER_STATUS_PU_ASSIGNED, ORDER_STATUS_CONFIRMED
 from webapp.model.db import UserPreferences
 
 # --------------------------------------------------------------------------
@@ -261,9 +261,9 @@ def calendar_service(year, month):
     # gebuchte Tage
 
     for order in orders:
-        if order.status == ORDER_STATUS_APPROVED:
+        if order.status in (ORDER_STATUS_PU_ASSIGNED, ORDER_STATUS_APPROVED, ORDER_STATUS_CONFIRMED):
             approved_days.add(order.request_date.day)
-        elif order.status in (ORDER_STATUS_CREATED, ORDER_STATUS_WAITING, ORDER_STATUS_PU_ACCEPTED):
+        elif order.status in (ORDER_STATUS_CREATED, ORDER_STATUS_WAITING ):
             planned_days.add(order.request_date.day)
 # hier einfach ausgerechnet. Besser mit astropy?
     new_moon_days, full_moon_days = moon_phases(year, month)
