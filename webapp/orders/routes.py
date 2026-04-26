@@ -189,9 +189,6 @@ def actionhandler():
         order_head.request_date = form.request_date.data
         order_head.request_observatory_id = form.observatory_name.data
         observatory = Observatory.query.get(order_head.request_observatory_id)
-        reservation = None
-        if form.request_date.data:
-            reservation = ObservatoryReservation(order_head.request_date,observatory,order_head)
         order_head.name = form.requester_name.data
         #order_head.request_purpose = form.request_purpose.data
         # find the given power user in the user table
@@ -214,6 +211,11 @@ def actionhandler():
             )
             return redirect("/orders")
 
+        # Reservation is created after the first commit so that order_head.id
+        # is already assigned and ObservatoryReservation.__init__ can store it.
+        reservation = None
+        if form.request_date.data:
+            reservation = ObservatoryReservation(order_head.request_date, observatory, order_head)
 
         try:
             if reservation:

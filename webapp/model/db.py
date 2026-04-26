@@ -585,7 +585,7 @@ class ObservatoryReservation(db.Model):
         observatory: Observatory,
         request: ObservationRequest,
     ):
-        self.date = self.date_sanitize(date),
+        self.date = self.date_sanitize(date)
         self.observatory_id = observatory.id
         self.observation_request_id = request.id
         now = datetime.now()

@@ -20,13 +20,13 @@
 {% if orders|length > 0 %}
 
     {# Grundebene Festlegung der Statusvarianten #}
-    {% set orders_created = orders | selectattr('status', 'equalto', CONSTANTS.ORDER_STATUS_CREATED) | list %}
+    {% set orders_waiting = orders | selectattr('status', 'equalto', CONSTANTS.ORDER_STATUS_WAITING) | list %}
     {% set orders_approved_open = orders | selectattr('status', 'equalto', CONSTANTS.ORDER_STATUS_APPROVED) | rejectattr('request_poweruser_id') | list %}
     {% set orders_pu_assigned = orders | selectattr('status', 'equalto', CONSTANTS.ORDER_STATUS_PU_ASSIGNED) | list %}
 
     {# -------------------- ABGESCHICKT -------------------- #}
     <h3>von FG Mitglied an Approver abgeschickt</h3>
-    {% if orders_created|length > 0 %}
+    {% if orders_waiting|length > 0 %}
 
 <table class="table table-bordered table-striped table-hover">
     <thead>
@@ -42,7 +42,7 @@
         </tr>
     </thead>
     <tbody>
-    {% for order in orders_created %}
+    {% for order in orders_waiting %}
         <tr>
             <td>
                 <a href="{{ url_for('orders.show_order_positions', order_id=order.id) }}" class="btn btn-sm btn-secondary" title="Show">

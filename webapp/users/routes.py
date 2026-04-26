@@ -69,9 +69,8 @@ def login():
 
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
-            next_page = request.args.get('next', '').replace('\\', '')  
-            if not urlparse(next_page).netloc and not urlparse(next_page).scheme:
-                
+            next_page = request.args.get('next', '').replace('\\', '')
+            if next_page and not urlparse(next_page).netloc and not urlparse(next_page).scheme:
                 return redirect(next_page)
             
             return redirect(url_for('main.home'))

@@ -3,6 +3,19 @@
 
 from behave import *
 from selenium.webdriver.common.by import By
+from behave.api.pending_step import StepNotImplementedError
+from features.environment import webserver_port
+
+@given(u'I am on the home page')
+def step_impl(context):
+    open_page(context, "")
+
+@given(u'I am on the page "{page}"')
+def open_page(context, page):
+    if page and page[0]!='/':
+        page = '/'+page
+    context.driver.get(f"http://localhost:{webserver_port}{page}")
+    #raise StepNotImplementedError(f'Given I am on the page "{page}"')
 
 @given(u'I open the url "{url}"')
 def open_webpage(context, url):
@@ -25,7 +38,7 @@ def login_user(context,user,password):
 
 @when(u'I enter the admin credentials')
 def login_admin(context):
-    login_user(context, context.config.ADMIN_USER, context.config.ADMIN_PASSWORD)
+    login_user(context, context.app_config.ADMIN_USER, context.app_config.ADMIN_PASSWORD)
 
 @then(u'I am logged in')
 def i_am_logged_in(context):
