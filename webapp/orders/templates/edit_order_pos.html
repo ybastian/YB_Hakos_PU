@@ -501,7 +501,10 @@ function registerTelescopeBoxListeners(context = document) {
 
       fetch('/orders/get_filtersets', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
+        },
         body: JSON.stringify({ telescope_id: this.value })
       })
       .then(r => r.json())

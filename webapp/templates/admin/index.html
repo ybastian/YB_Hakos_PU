@@ -24,6 +24,7 @@
                     <h2>Export</h2>
                     <p>Exportiere Datenbank in JSON Datei.</p>
                     <form action="{{ url_for('inout.export_data') }}" method="post">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <button type="submit" class="btn btn-primary">Export</button>
                     </form>
                 </div>
@@ -31,6 +32,7 @@
                     <h2>Import</h2>
                     <p>Importiere Datenbank aus JSON Datei.</p>
                     <form action="{{ url_for('inout.import_data') }}" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <div class="form-group">
                             <label for="file">Datei</label>
                             <input type="file" class="form-control-file" id="file" name="file">

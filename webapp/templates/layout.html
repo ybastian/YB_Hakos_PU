@@ -9,11 +9,20 @@
     <link href="{{ url_for('static', filename='bootstrap-5.3.3.min.css')}}" rel="stylesheet" integrity="sha384-J7XvR9bYiQw3uAsOM+Fb6h8cviYhGfsktO93j9pyeHxh69xwDyB0VYmszxrzafbC" crossorigin="anonymous">
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap-icons/font/bootstrap-icons.css') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <script defer src="{{ url_for('static', filename='htmx-2.0.3.min.js') }}"></script>
     <script defer src="{{ url_for('static', filename='jquery-3.2.1.slim.min.js') }}" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script defer src="{{ url_for('static', filename='bootstrap.bundle-5.3.3.min.js') }}" integrity="sha384-5FgqaIraNQm5MiWvLwoH1jzRCUDttx0J35wHBQRUt37DNCv+XDWYJVYdri0f/Qfa" crossorigin="anonymous"></script>
     <!-- our styles and scripts -->
     <script defer src="{{ url_for('static', filename='darkmode.js') }}"></script>
+    <script>
+        document.addEventListener("htmx:configRequest", function (event) {
+            var token = document.querySelector('meta[name="csrf-token"]');
+            if (token) {
+                event.detail.headers["X-CSRFToken"] = token.content;
+            }
+        });
+    </script>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
 
     {% if title %}

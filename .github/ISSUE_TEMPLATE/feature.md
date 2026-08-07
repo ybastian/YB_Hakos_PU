@@ -1,23 +1,29 @@
 ---
-name: Bug report
-about: Fehler melden
+name: Feature
+about: Erweiterungswunsch
 title: ''
-labels: bug
+labels: feature
 assignees: ''
 
 ---
 
 **Originator:**
-Wer hat diesen Fehler gemeldet?
+Wer hat diesen Wunsch gemeldet?
 
 **KI:**
-Dieser Fehler wurde ohne die Hilfe von KI gefunden.
+Dieser Wunsch wurde ohne die Hilfe von KI gefunden.
 
 **Ist:**
 Beschreibe Schritt für Schritt das Verhalten wie es aktuell ist.
 
 **Soll:**
 Beschreibe Schritt für Schritt das Verhalten wie es sein sollte.
+
+**Wie wichtig ist dieses neue Feature?**
+Beschreibe die Motivation bzw. welche Vorteile sich daraus ergeben.
+
+**Kannst du bei der Umsetzung helfen?**
+Beschreibe was du beitragen kannst damit der Wunsch umgesetzt werden kann.
 
 **Umgebung:**
 DEV, STAGE oder PROD? Oder ist es deine lokale Entwicklungsumgebung?

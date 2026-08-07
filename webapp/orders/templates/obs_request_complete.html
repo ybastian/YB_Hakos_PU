@@ -36,6 +36,7 @@
                       action="{{ url_for('orders.approve_order', order_id=order.id) }}"
                       style="display:inline;"
                       onsubmit="return confirm('Du willst diesen genehmigen?');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="btn btn-sm btn-success" title="Genehmigen">
                         <i class="bi bi-hand-thumbs-up-fill"></i>
                     </button>
@@ -45,6 +46,7 @@
                       action="{{ url_for('orders.reject_order', order_id=order.id) }}"
                       style="display:inline;"
                       onsubmit="return confirm('Du willst diesen Antrag zurückweisen?');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="btn btn-sm btn-danger" title="Ablehnen">
                         <i class="bi bi-hand-thumbs-down"></i>
                     </button>

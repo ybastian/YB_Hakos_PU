@@ -1,0 +1,83 @@
+name: Bug report2
+description: Fehler melden
+title: "[Bug]: "
+labels: 
+  - bug
+  - triage
+assignees: []
+type: bug
+body:
+  - type: input
+    id: contact
+    description: Wer hat diesen Fehler gemeldet?
+    validations:
+    required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        Dieser Fehler wurde ohne die Hilfe von KI gefunden.
+
+  - type: checkboxes
+    id: noki
+    attributes:
+      label: KI
+      description: Dieses Formular ist für Bugs die ohne KI gefunden wurden
+      options:
+        - label: Dieser Fehler wurde ohne die Hilfe von KI gefunden.
+          required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: "Ist:"
+      description: "Beschreibe Schritt für Schritt das Verhalten wie es aktuell ist."
+      placeholder: "Beschreibe Schritt für Schritt das Verhalten wie es aktuell ist.2"
+      value: ""
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-expected
+    attributes:
+      label: "Ist:"
+      description: "Beschreibe Schritt für Schritt das Verhalten wie es sein sollte."
+      placeholder: "Beschreibe Schritt für Schritt das Verhalten wie es sein sollte.2"
+      value: ""
+    validations:
+      required: true
+
+  - type: dropdown
+    id: environ
+    attributes:
+      label: Environment
+      description: "Wo ist der Fehler aufgetreten?"
+      options:
+        - Produktion
+        - Stage
+        - Dev
+        - Eigene Entwickler Umgebung
+      default: 0
+    validations:
+      required: true
+
+  - type: upload
+    id: screenshots
+    attributes:
+      label: Upload Screenshots
+      description: Füge ggf. Screenshots hinzu
+    validations:
+      required: false
+
+  - type: textarea
+    id: version
+    attributes:
+      label: Version
+      description: "Welche Version und commit steht unter about im Abschnitt Software?"
+
+  - type: textarea
+    id: more
+    attributes:
+      label: Weitere Hinweise
+      description: Weitere Hinweise zur Umsetzung oder Abhängigkeiten.
+      render: shell

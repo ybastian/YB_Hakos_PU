@@ -4,6 +4,18 @@ import os
 with open('config.json') as config_file:
     config = json.load(config_file)
 
+
+def config_bool(name, default=False):
+    value = os.environ.get(name, config.get(name))
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return bool(value)
+    return str(value).lower() in ('true', '1', 't', 'yes', 'y', 'on')
+
+
 class Config:
     SECRET_KEY = config.get('SECRET_KEY')
     SQLALCHEMY_DATABASE_URI = config.get('SQLALCHEMY_DATABASE_URI')
@@ -26,3 +38,7 @@ class Config:
     GITCOMMIT=os.environ.get('GITCOMMIT', '')
     CLEANBUILD=os.environ.get('CLEANBUILD', '')
     ENVIRONMENT = config.get('ENVIRONMENT', 'LOCAL')
+    SESSION_COOKIE_SECURE = config_bool(
+        'SESSION_COOKIE_SECURE',
+        default=str(ENVIRONMENT).upper() == 'PRODUCTION',
+    )

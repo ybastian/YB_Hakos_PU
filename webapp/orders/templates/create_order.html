@@ -3,6 +3,7 @@
 
 <h2>Teleskopzeit Neu beantragen</h2>
 <form method="post" action="{{ url_for('orders.actionhandler') }}">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 {% if current_user.is_authenticated %}
 <p>Antragssteller: {{ current_user.firstname }} {{ current_user.surname }} ({{ current_user.name }})</p>
 

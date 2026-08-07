@@ -28,6 +28,7 @@
       <tr>
         <td>
             <form method="POST" action="{{ url_for('main.gast_approve') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="user_id" value="{{ u.id }}">
             <button class="btn btn-success btn-sm" type="submit">Freischalten</button>
           </form></td>
