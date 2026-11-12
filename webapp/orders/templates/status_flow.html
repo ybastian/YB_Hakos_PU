@@ -5,11 +5,15 @@
 <h2>Ablauf eines Antrags</h2>
 <p>
     Ein Beobachtungsantrag durchläuft mehrere Stati. Die Farbe der Pfeile zeigt,
-    wer den nächsten Schritt auslöst.
+    wer den nächsten Schritt auslöst. Gestrichelte Pfeile laufen automatisch ab.
+</p>
+<p>
+    Nach dem Beobachtungstermin wird zu jedem durchgeführten Antrag eine
+    Beobachtungsrückmeldung angelegt, die eigene Stati hat.
 </p>
 
 {# Diagramm mit draw.io bearbeiten: webapp/static/status_flow.drawio.svg öffnen und speichern #}
-<div class="mb-4" style="max-width: 1003px; overflow-x: auto;">
+<div class="mb-4" style="max-width: 1029px; overflow-x: auto;">
     <img src="{{ url_for('static', filename='status_flow.drawio.svg') }}"
          alt="Ablaufdiagramm der Antragsstati" style="min-width: 680px; width: 100%; height: auto;">
 </div>
@@ -47,7 +51,7 @@
         <tr>
             <td>{{ L[CONSTANTS.ORDER_STATUS_PU_ASSIGNED] }}</td>
             <td>Ein Poweruser ist für den Termin eingeteilt, der Termin ist fest gebucht. Du wirst per Mail benachrichtigt.</td>
-            <td>Der Poweruser führt die Beobachtung durch. Der Approver kann einen anderen Poweruser zuweisen.</td>
+            <td>Der Poweruser führt die Beobachtung durch. Der Approver kann einen anderen Poweruser zuweisen. Nach dem Termin wird automatisch eine Beobachtungsrückmeldung angelegt.</td>
         </tr>
         <tr>
             <td>{{ L[CONSTANTS.ORDER_STATUS_PU_REJECTED] }}</td>
@@ -57,7 +61,17 @@
         <tr>
             <td>{{ L[CONSTANTS.ORDER_STATUS_PU_ACCEPTED] }}</td>
             <td>Der zugewiesene Poweruser hat den Antrag ausdrücklich übernommen.</td>
-            <td>-</td>
+            <td>Nach dem Termin wird automatisch eine Beobachtungsrückmeldung angelegt.</td>
+        </tr>
+        <tr>
+            <td>{{ L[CONSTANTS.ORDER_STATUS_STATISTICS_OPEN] }}</td>
+            <td>Der Beobachtungstermin ist vorbei, die Beobachtungsrückmeldung ist noch offen.</td>
+            <td>Du füllst die Rückmeldung aus und gibst an, ob die Aufnahmen wie beantragt gemacht wurden. Ist die Beobachtung ausgefallen (Wetter oder Technik), meldet der Poweruser den Ausfall.</td>
+        </tr>
+        <tr>
+            <td>{{ L[CONSTANTS.ORDER_STATUS_DOCUMENTED] }}</td>
+            <td>Die Beobachtung ist dokumentiert und erscheint in der Beobachtungsdatenbank.</td>
+            <td>Du kannst die Aufnahmezeilen nachträglich korrigieren.</td>
         </tr>
     </tbody>
 </table>

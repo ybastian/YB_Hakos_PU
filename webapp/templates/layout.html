@@ -49,11 +49,9 @@
                         {% if current_user.is_authenticated %}
                             {% if current_user.has_role("user") or current_user.has_role("admin") %}
                             <li class="nav-item"><a class="nav-link" href="{{ url_for('orders.show_orders') }}">Antrag</a></li>
-                                                        {% if current_user.has_role("user") %}
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ url_for('main.observation_database') }}">Beobachtungsdatenbank</a>
                             </li>
-                            {% endif %}
                             {% endif %}
 
                             <!-- Kalender in Navigationsleiste nur für Approver und Poweruser -->
